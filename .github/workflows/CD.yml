@@ -41,3 +41,4 @@ jobs:
             cd ~/hackathon
             docker compose up -d --build --no-deps spring
             docker image prune -f         
+
