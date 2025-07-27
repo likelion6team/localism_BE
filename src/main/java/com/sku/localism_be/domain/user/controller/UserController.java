@@ -36,7 +36,7 @@ public class UserController {
 
   @Operation(summary = "회원 전체 조회",
       description = "전체 회원 정보를 조회하는 API.")
-  @GetMapping("/users")
+  @GetMapping("")
   public ResponseEntity<BaseResponse<List<UserResponse>>> getAllUsers() {
     List<UserResponse> response = userService.getAllUsers();
     return ResponseEntity.ok(BaseResponse.success("전체 회원 조회 성공", response));
