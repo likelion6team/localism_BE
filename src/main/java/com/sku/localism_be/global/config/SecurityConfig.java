@@ -50,6 +50,7 @@ public class SecurityConfig {
             ).permitAll()
             // 회원가입·로그인 같은 public API 허용
             .requestMatchers("/api/**").permitAll()
+            .requestMatchers("/", "/index.html").permitAll()
             // 나머지는 인증 필요
             .anyRequest().authenticated()
         )
