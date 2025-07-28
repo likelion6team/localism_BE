@@ -31,11 +31,11 @@ public class UserController {
   public ResponseEntity<BaseResponse<SignUpResponse>> signup(
       @RequestBody @Valid SignUpRequest signUpRequest) {
     SignUpResponse signUpResponse = userService.signUp(signUpRequest);
-    return ResponseEntity.ok(BaseResponse.success("회원가입에 성공했습니다.", signUpResponse));
+    return ResponseEntity.ok(BaseResponse.success("회원가입에 성공했습니다!", signUpResponse));
   }
 
   @Operation(summary = "회원 전체 조회",
-      description = "전체 회원 정보를 조회하는 API.")
+      description = "전체 회원 정보를 조회하는 API!")
   @GetMapping("")
   public ResponseEntity<BaseResponse<List<UserResponse>>> getAllUsers() {
     List<UserResponse> response = userService.getAllUsers();
