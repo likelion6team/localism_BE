@@ -60,7 +60,7 @@ public class DetailCard extends BaseTimeEntity {
   private Integer consciousnessScore;    // 의식 점수
 
   @Column(nullable = true)
-  private Integer totalScore;            // 총점수
+  private Double totalScore;            // 총점수
 
   @Column(length = 100)
   private String currentStatus;          // 현상황
@@ -101,7 +101,9 @@ public class DetailCard extends BaseTimeEntity {
   @Column(length = 1000)
   private String aiRecommendedAction;    // AI 추천 응급 대응 조치
 
-  @Column(nullable = false)
-  private Boolean sent = false;               // 전송 여부
+
+
+//  @Column(nullable = false)
+//  private Boolean sent = false;               // 전송 여부
 
 }

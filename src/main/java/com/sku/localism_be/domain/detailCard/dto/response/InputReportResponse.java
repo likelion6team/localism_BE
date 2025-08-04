@@ -40,8 +40,8 @@ public class InputReportResponse {
   @Schema(description = "의식 점수", example = "0")
   private Integer consciousnessScore;
 
-  @Schema(description = "총점수", example = "3")
-  private Integer totalScore;
+  @Schema(description = "총점수(RTS)", example = "3")
+  private Double totalScore;
 
   @Schema(description = "현상황", example = "안정")
   private String currentStatus;
