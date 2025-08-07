@@ -2,11 +2,28 @@ package com.sku.localism_be.domain.detailCard.mapper;
 
 
 import com.sku.localism_be.domain.detailCard.dto.response.InputReportResponse;
+import com.sku.localism_be.domain.detailCard.dto.response.RtsResponse;
 import com.sku.localism_be.domain.detailCard.entity.DetailCard;
+import com.sku.localism_be.domain.detailCard.entity.Rts;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DetailCardMapper {
+
+  public RtsResponse toRtsResponse(Rts rts) {
+    return RtsResponse.builder()
+        .respirationRate(rts.getRespirationRate())
+        .respirationScore(rts.getRespirationScore())
+        .bloodPressureMin(rts.getBloodPressureMin())
+        .bloodPressureMax(rts.getBloodPressureMax())
+        .bloodPressureScore(rts.getBloodPressureScore())
+        .consciousness(rts.getConsciousness())
+        .consciousnessScore(rts.getConsciousnessScore())
+        .RTSScore(rts.getTotalScore())
+        .currentStatus(rts.getCurrentStatus())
+        .summary(rts.getSummary())
+        .build();
+  }
 
   public InputReportResponse toInputReportResponse(DetailCard detailCard) {
     return InputReportResponse.builder()
