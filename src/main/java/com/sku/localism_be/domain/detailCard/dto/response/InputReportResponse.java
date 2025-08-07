@@ -78,7 +78,7 @@ public class InputReportResponse {
   private List<String> majorSymptoms;
 
   @Schema(description = "AI 추천 응급 대응 조치(3개)", example = "119에 신고 후 즉시 병원 이송")
-  private String aiRecommendedAction;
+  private List<String> aiRecommendedAction;
 
 
 }

@@ -32,7 +32,7 @@ public class DetailCardMapper {
         .ageGroup(detailCard.getAgeGroup())
         .accidentType(detailCard.sliceAT())
         .majorSymptoms(detailCard.sliceMS())
-        .aiRecommendedAction(detailCard.getAiRecommendedAction())
+        .aiRecommendedAction(detailCard.sliceAi())
         .build();
   }
 

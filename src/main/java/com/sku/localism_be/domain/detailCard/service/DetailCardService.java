@@ -1,15 +1,26 @@
 package com.sku.localism_be.domain.detailCard.service;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sku.localism_be.domain.detailCard.dto.request.InputReportRequest;
 import com.sku.localism_be.domain.detailCard.dto.response.InputReportResponse;
 import com.sku.localism_be.domain.detailCard.entity.DetailCard;
 import com.sku.localism_be.domain.detailCard.mapper.DetailCardMapper;
 import com.sku.localism_be.domain.detailCard.repository.DetailCardRepository;
+import java.net.http.HttpHeaders;
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
 @Slf4j
@@ -18,6 +29,12 @@ public class DetailCardService {
 
   private final DetailCardRepository detailCardRepository;
   private final DetailCardMapper detailCardMapper;
+
+  private final WebClient openAiWebClient;
+  private final ObjectMapper objectMapper;
+
+  @Value("${openai.api.key}")
+  private String openAiApiKey;
 
 
   @Transactional
@@ -116,17 +133,62 @@ public class DetailCardService {
     summary = "[AI 예정] 환자는 심각한 상태입니다. 즉시 병원 이송이 필요합니다.";
 
 
+    // [AI] ai 추천 응급 대응 조치 //
+
+    String requestJson;
+    try {
+      requestJson = objectMapper.writeValueAsString(request);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException("Request JSON 변환 실패", e);
+    }
+
+    String prompt = """
+당신은 응급구조 전문가입니다.
+
+아래 환자 데이터는 이미 병원으로 이송 중인 응급상황입니다.
+그러므로 "병원으로 이송하세요", "즉시 병원 이송" 등은 절대 포함하지 마세요.
+
+지금 이송 중 구급차 안에서 응급대원이 할 수 있는 응급처치 3가지를 15자 이내로 제시하세요.
+각 항목은 '진행' 또는 '시행'으로 끝나야 하며, 숫자나 줄바꿈 없이, 오직 JSON 배열만으로 응답하세요.
+
+환자 데이터:
+%s
+""".formatted(requestJson);
+
+    String openAiResponse = openAiWebClient.post()
+        .uri("/v1/chat/completions")
+        .header("Authorization", "Bearer " + openAiApiKey)
+        .header("Content-Type", "application/json")
+        .bodyValue(Map.of(
+            "model", "gpt-4",
+            "temperature", 0.4,
+            "messages", List.of(
+                Map.of("role", "system", "content", "너는 응급처치 전문가야."),
+                Map.of("role", "user", "content", prompt)
+            )
+        ))
+        .retrieve()
+        .bodyToMono(String.class)
+        .block();
+
+
+    List<String> actions;
+    try {
+      JsonNode root = objectMapper.readTree(openAiResponse);
+      String content = root.path("choices").get(0).path("message").path("content").asText();
+      log.info("✅ OpenAI 응답 본문: {}", content);
+      actions = objectMapper.readValue(content, new TypeReference<>() {});
+    } catch (Exception e) {
+      throw new RuntimeException("OpenAI 응답 파싱 실패", e);
+    }
+
+
+
+
     // 사고 유형, 주요 증상 List -> String 으로 만들어서 DB에 저장.
     String accidentType = String.join(",", request.getAccidentType());
     String majorSymptoms = String.join(",", request.getMajorSymptoms());
-
-
-
-
-    // [AI] ai 추천 응급 대응 조치 //
-    String aiRecommendedAction;
-    aiRecommendedAction = "[AI 예정] 산소 투여 진행";
-
+    String aiAnswer = String.join(",", actions);
 
 
 
@@ -146,7 +208,7 @@ public class DetailCardService {
         .summary(summary)
         .accidentType(accidentType)
         .majorSymptoms(majorSymptoms)
-        .aiRecommendedAction(aiRecommendedAction)
+        .aiRecommendedAction(aiAnswer)
         .year(request.getYear())
         .month(request.getMonth())
         .day(request.getDay())

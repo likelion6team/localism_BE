@@ -120,6 +120,11 @@ public class DetailCard extends BaseTimeEntity {
     return responseList;
   }
 
+  public List<String> sliceAi(){
+    List<String> responseList = Arrays.asList(this.aiRecommendedAction.split(","));
+    return responseList;
+  }
+
 //  @Column(nullable = false)
 //  private Boolean sent = false;               // 전송 여부
 
