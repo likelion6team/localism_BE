@@ -3,6 +3,7 @@ package com.sku.localism_be.domain.detailCard.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,9 +16,9 @@ import lombok.NoArgsConstructor;
 @Schema(title = "InputReportRequest DTO", description = "리포트 작성에 기입한 입력 내용 요청 데이터")
 public class InputReportRequest {
 
-  @NotBlank(message = "사고유형은 필수입니다.")
-  @Schema(description = "사고 유형", example = "교통사고")
-  private String accidentType;
+  @NotEmpty(message = "사고유형은 필수입니다.")
+  @Schema(description = "사고 유형", example = "[\"교통사고\"]")
+  private List<String> accidentType;
 
   @NotNull(message = "년도는 필수입니다.")
   @Min(value = 1900, message = "년도는 1900 이상이어야 합니다.")
@@ -57,9 +58,9 @@ public class InputReportRequest {
   @Schema(description = "연령대", example = "30대")
   private String ageGroup;
 
-  @NotBlank(message = "증상 선택은 필수입니다.")
-  @Schema(description = "주요 증상", example = "가슴 통증, 호흡 곤란")
-  private String majorSymptoms;
+  @NotEmpty(message = "증상 선택은 필수입니다.")
+  @Schema(description = "주요 증상", example = "[\"가슴 통증\", \"호흡 곤란\"]")
+  private List<String> majorSymptoms;
 
   @NotNull(message = "호흡수는 필수입니다.")
   @Min(0)

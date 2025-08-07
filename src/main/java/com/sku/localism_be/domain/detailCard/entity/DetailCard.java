@@ -8,6 +8,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -94,7 +97,10 @@ public class DetailCard extends BaseTimeEntity {
   private String ageGroup;               // 연령대 ("20대", "30대", ...)
 
 
-  // 증상 및 조치
+  // 사고 유형, 증상 및 조치
+  @Column(length = 1000)
+  private String accidentType;          // 사고 유형 (comma-separated)
+  
   @Column(length = 1000)
   private String majorSymptoms;          // 주요 증상 (comma-separated)
 
@@ -102,6 +108,17 @@ public class DetailCard extends BaseTimeEntity {
   private String aiRecommendedAction;    // AI 추천 응급 대응 조치
 
 
+
+  // String을 ,로 슬라이스 하여 리스트로 만드는 메서드.
+  public List<String> sliceAT(){
+    List<String> responseList = Arrays.asList(this.accidentType.split(","));
+    return responseList;
+  }
+
+  public List<String> sliceMS(){
+    List<String> responseList = Arrays.asList(this.majorSymptoms.split(","));
+    return responseList;
+  }
 
 //  @Column(nullable = false)
 //  private Boolean sent = false;               // 전송 여부

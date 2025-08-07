@@ -116,8 +116,9 @@ public class DetailCardService {
     summary = "[AI 예정] 환자는 심각한 상태입니다. 즉시 병원 이송이 필요합니다.";
 
 
-    // 주요 증상 (ex. 흉통(~주요증상), 의식 없음(~의식 상태))
-    String majorSymptoms = "[개발 중]";
+    // 사고 유형, 주요 증상 List -> String 으로 만들어서 DB에 저장.
+    String accidentType = String.join(",", request.getAccidentType());
+    String majorSymptoms = String.join(",", request.getMajorSymptoms());
 
 
 
@@ -125,7 +126,6 @@ public class DetailCardService {
     // [AI] ai 추천 응급 대응 조치 //
     String aiRecommendedAction;
     aiRecommendedAction = "[AI 예정] 산소 투여 진행";
-
 
 
 
@@ -144,6 +144,7 @@ public class DetailCardService {
         .totalScore(totalScore)
         .currentStatus(currentStatus)
         .summary(summary)
+        .accidentType(accidentType)
         .majorSymptoms(majorSymptoms)
         .aiRecommendedAction(aiRecommendedAction)
         .year(request.getYear())

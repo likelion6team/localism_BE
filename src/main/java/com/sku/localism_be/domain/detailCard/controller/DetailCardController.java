@@ -30,7 +30,7 @@ public class DetailCardController {
   public ResponseEntity<BaseResponse<InputReportResponse>> inputReport(
       @RequestBody @Valid InputReportRequest inputReportRequest) {
     InputReportResponse inputReportResponse = detailCardService.inputReport(inputReportRequest);
-    return ResponseEntity.ok(BaseResponse.success("리포트 결과 추출에 성공했습니다!", inputReportResponse));
+    return ResponseEntity.ok(BaseResponse.success("상세 리포트 결과 응답을 성공했습니다!", inputReportResponse));
   }
 
 
