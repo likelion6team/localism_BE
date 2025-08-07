@@ -24,7 +24,7 @@ public class DetailCardService {
   public InputReportResponse inputReport(InputReportRequest request){
 
 
-    // 호흡수 -> 호흡 점수
+    // 호흡수 -> 호흡 점수(RR)
     Integer respirationScore;
     Integer respirationRate = request.getRespirationRate();
 
@@ -51,11 +51,11 @@ public class DetailCardService {
       pulseScore = 4;
     }
 
-    // 최대 혈압 -> 혈압 점수(수축기 혈압)
+    // 최대 혈압 -> 혈압 점수(수축기 혈압)(SBP)
     Integer bloodPressureScore;
     Integer bloodPressureMax = request.getBloodPressureMax();
 
-    if (bloodPressureMax >= 89) {
+    if (bloodPressureMax > 89) {
       bloodPressureScore = 4;
     } else if (bloodPressureMax >= 76) {
       bloodPressureScore = 3;
@@ -68,7 +68,7 @@ public class DetailCardService {
     }
 
 
-    // 의식 -> 의식 상태(), 의식 점수
+    // 의식 -> 의식 상태(), 의식 점수(GCS)
     String consciousness = null;
     Integer consciousnessScore = 0;
 
@@ -117,7 +117,7 @@ public class DetailCardService {
 
 
     // 주요 증상 (ex. 흉통(~주요증상), 의식 없음(~의식 상태))
-    String majorSymptoms = "[일단 하는 중]";
+    String majorSymptoms = "[개발 중]";
 
 
 

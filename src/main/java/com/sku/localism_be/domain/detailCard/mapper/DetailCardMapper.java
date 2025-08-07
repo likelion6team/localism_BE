@@ -20,7 +20,7 @@ public class DetailCardMapper {
         .bloodPressureScore(detailCard.getBloodPressureScore())
         .consciousness(detailCard.getConsciousness())
         .consciousnessScore(detailCard.getConsciousnessScore())
-        .totalScore(detailCard.getTotalScore())
+        .RTSScore(detailCard.getTotalScore())
         .currentStatus(detailCard.getCurrentStatus())
         .summary(detailCard.getSummary())
         .year(detailCard.getYear())

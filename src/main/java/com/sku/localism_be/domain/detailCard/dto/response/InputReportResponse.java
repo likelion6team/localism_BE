@@ -41,7 +41,7 @@ public class InputReportResponse {
   private Integer consciousnessScore;
 
   @Schema(description = "총점수(RTS)", example = "3")
-  private Double totalScore;
+  private Double RTSScore;
 
   @Schema(description = "현상황", example = "안정")
   private String currentStatus;
