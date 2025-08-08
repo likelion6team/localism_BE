@@ -1,10 +1,6 @@
 package com.sku.localism_be.domain.detailCard.service;
 
 
-import com.sku.localism_be.domain.detailCard.dto.request.InputReportRequest;
-import com.sku.localism_be.domain.detailCard.dto.request.SmallReportDateRequest;
-import com.sku.localism_be.domain.detailCard.dto.request.SmallReportLatestRequest;
-import com.sku.localism_be.domain.detailCard.dto.response.InputReportResponse;
 import com.sku.localism_be.domain.detailCard.dto.response.SmallReportListResponse;
 import com.sku.localism_be.domain.detailCard.dto.response.SmallReportResponse;
 import com.sku.localism_be.domain.detailCard.entity.DetailCard;
