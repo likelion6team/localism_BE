@@ -2,6 +2,7 @@ package com.sku.localism_be.domain.detailCard.mapper;
 
 
 import com.sku.localism_be.domain.detailCard.dto.response.InputReportResponse;
+import com.sku.localism_be.domain.detailCard.dto.response.SmallReportResponse;
 import com.sku.localism_be.domain.detailCard.entity.DetailCard;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +34,22 @@ public class DetailCardMapper {
         .accidentType(detailCard.sliceAT())
         .majorSymptoms(detailCard.sliceMS())
         .aiRecommendedAction(detailCard.sliceAi())
+        .build();
+  }
+
+
+  public SmallReportResponse toSmallReportResponse(DetailCard detailCard) {
+    return SmallReportResponse.builder()
+        .id(detailCard.getId())
+        .RTSScore(detailCard.getTotalScore())
+        .year(detailCard.getYear())
+        .month(detailCard.getMonth())
+        .day(detailCard.getDay())
+        .hour(detailCard.getHour())
+        .minute(detailCard.getMinute())
+        .gender(detailCard.getGender())
+        .ageGroup(detailCard.getAgeGroup())
+        .majorSymptoms(detailCard.sliceMS())
         .build();
   }
 
