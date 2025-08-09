@@ -48,6 +48,14 @@ public class DetailCardService {
       return detailCardMapper.toInputReportResponse(detailCard);
   }
 
+  // Get 전체 리포트 조회
+  @Transactional
+  public List<InputReportResponse> getDetailReports(){
+    List<DetailCard> detailCardList = detailCardRepository.findAll();
+
+    return detailCardList.stream().map(detailCardMapper::toInputReportResponse).toList();
+  }
+
 
   // Post 리포트
   @Transactional
