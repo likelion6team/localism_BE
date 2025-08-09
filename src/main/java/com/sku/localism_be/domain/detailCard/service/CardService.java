@@ -40,6 +40,7 @@ public class CardService {
     // 그걸 SmallReportListResponse의 필드에 저장하고 리턴.
     return SmallReportListResponse.builder()
         .reportList(responseList)
+        .reportCount(responseList.size())
         .build();
     
   }
@@ -56,8 +57,8 @@ public class CardService {
     }
 
 
-    // id들 작성일과 선택된 날짜가 일치하는 리스트를 가지고 옴.
-    List<DetailCard> dateReports = detailCardRepository.findByIdInAndYearAndMonthAndDay(
+    // id들 작성일과 선택된 날짜가 일치하는 리스트를 가지고 옴.(오래된순으로)
+    List<DetailCard> dateReports = detailCardRepository.findByIdInAndYearAndMonthAndDayOrderByHourAscMinuteAsc(
         ids, year, month, day
     );
 
@@ -71,6 +72,7 @@ public class CardService {
     // 그걸 SmallReportListResponse의 필드에 저장하고 리턴.
     return SmallReportListResponse.builder()
         .reportList(responseList)
+        .reportCount(responseList.size())
         .build();
 
   }

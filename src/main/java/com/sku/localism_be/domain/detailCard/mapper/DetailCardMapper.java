@@ -50,6 +50,7 @@ public class DetailCardMapper {
         .minute(detailCard.getMinute())
         .gender(detailCard.getGender())
         .ageGroup(detailCard.getAgeGroup())
+        .location(detailCard.getLocation())
         .majorSymptoms(detailCard.sliceMS())
         .build();
   }

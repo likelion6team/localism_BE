@@ -35,6 +35,9 @@ public class SmallReportResponse {
   @Schema(description = "연령대", example = "30대")
   private String ageGroup;
 
+  @Schema(description = "발생지", example = "서울시 강남구 논현로 123")
+  private String location;
+
   @Schema(description = "주요 증상", example = "가슴 통증, 호흡 곤란")
   private List<String> majorSymptoms;
 

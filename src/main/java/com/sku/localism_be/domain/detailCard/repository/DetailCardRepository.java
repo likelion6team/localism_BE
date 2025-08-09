@@ -9,6 +9,9 @@ public interface DetailCardRepository extends JpaRepository<DetailCard, Long>  {
   List<DetailCard> findByIdInAndYearAndMonthAndDay(
       List<Long> ids, Integer year, Integer month, Integer day);
 
+  List<DetailCard> findByIdInAndYearAndMonthAndDayOrderByHourAscMinuteAsc(
+      List<Long> ids, Integer year, Integer month, Integer day);
+
   List<DetailCard> findByYearAndMonthAndDayAndHourAndMinuteOrderByYearDescMonthDescDayDescHourDescMinuteDesc(
       Integer year, Integer month, Integer day, Integer hour, Integer minute
   );

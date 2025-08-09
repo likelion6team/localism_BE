@@ -14,4 +14,7 @@ public class SmallReportListResponse {
   @Schema(description = "요약 리포트 리스트")
   private List<SmallReportResponse> reportList;
 
+  @Schema(description = "요약 리포트 리스트 길이")
+  private int reportCount;
+
 }
