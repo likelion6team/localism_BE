@@ -8,8 +8,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sku.localism_be.domain.detailCard.dto.request.InputReportRequest;
 import com.sku.localism_be.domain.detailCard.dto.response.InputReportResponse;
 import com.sku.localism_be.domain.detailCard.entity.DetailCard;
+import com.sku.localism_be.domain.detailCard.exception.DetailCardErrorCode;
 import com.sku.localism_be.domain.detailCard.mapper.DetailCardMapper;
 import com.sku.localism_be.domain.detailCard.repository.DetailCardRepository;
+import com.sku.localism_be.global.exception.CustomException;
 import java.net.http.HttpHeaders;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,6 +39,25 @@ public class DetailCardService {
   private String openAiApiKey;
 
 
+  // Get 단일 리포트 조회
+  @Transactional
+  public InputReportResponse getDetailReport(Long id){
+      DetailCard detailCard = detailCardRepository.findById(id).orElseThrow(() -> new CustomException(
+          DetailCardErrorCode.DETAILCARD_NOT_FOUND));
+
+      return detailCardMapper.toInputReportResponse(detailCard);
+  }
+
+  // Get 전체 리포트 조회
+  @Transactional
+  public List<InputReportResponse> getDetailReports(){
+    List<DetailCard> detailCardList = detailCardRepository.findAll();
+
+    return detailCardList.stream().map(detailCardMapper::toInputReportResponse).toList();
+  }
+
+
+  // Post 리포트
   @Transactional
   public InputReportResponse inputReport(InputReportRequest request){
 
@@ -118,26 +139,31 @@ public class DetailCardService {
 
 
 
-    // 현상황 (RTS 점수에서 나온 상태)
+    // 현상황 (RTS 점수에서 나온 상태), 한줄 요약
     String currentStatus;
-    if (totalScore >= 9) {
+    String summary;
+    if (totalScore >= 6.0) {
       currentStatus = "안정";
-    } else if (totalScore >= 6) {
+      summary = "환자 상태는 양호합니다. 경과를 관찰하며 조치를 판단하세요.";
+    } else if (totalScore >= 3.0) {
       currentStatus = "주의";
+      summary = "위급 상황으로 진행될 수 있습니다. 신속한 대응을 준비하세요.";
     } else {
       currentStatus = "위험";
+      summary = "환자는 심각한 상태입니다. 즉시 병원 이송이 필요합니다.";
     }
 
-    // [AI] 한줄 요약 (ex. 환자는 심각한 상태입니다. 즉시 병원 이송이 필요합니다.) //
-    String summary;
-    summary = "[AI 예정] 환자는 심각한 상태입니다. 즉시 병원 이송이 필요합니다.";
 
 
     // [AI] ai 추천 응급 대응 조치 //
 
+    Map<String, Object> requestMap = objectMapper.convertValue(request, new TypeReference<>() {});
+    requestMap.put("currentStatus", currentStatus);
+    requestMap.put("rtsScore", totalScore);
+
     String requestJson;
     try {
-      requestJson = objectMapper.writeValueAsString(request);
+      requestJson = objectMapper.writeValueAsString(requestMap);
     } catch (JsonProcessingException e) {
       throw new RuntimeException("Request JSON 변환 실패", e);
     }
@@ -148,12 +174,20 @@ public class DetailCardService {
 아래 환자 데이터는 이미 병원으로 이송 중인 응급상황입니다.
 그러므로 "병원으로 이송하세요", "즉시 병원 이송" 등은 절대 포함하지 마세요.
 
+환자 상태(currentStatus): %s
+RTS 점수(rtsScore): %.2f
+
+환자 상태에 따른 응급처치 규칙:
+- 상태가 "안정"이면 저위험 처치만 제안(심폐소생술 금지)
+- 상태가 "주의"이면 예방적 처치 위주 제안
+- 상태가 "위험"이면 고위험 처치도 가능
+
 지금 이송 중 구급차 안에서 응급대원이 할 수 있는 응급처치 3가지를 15자 이내로 제시하세요.
 각 항목은 '진행' 또는 '시행'으로 끝나야 하며, 숫자나 줄바꿈 없이, 오직 JSON 배열만으로 응답하세요.
 
 환자 데이터:
 %s
-""".formatted(requestJson);
+""".formatted(currentStatus, totalScore, requestJson);
 
     String openAiResponse = openAiWebClient.post()
         .uri("/v1/chat/completions")
@@ -216,6 +250,7 @@ public class DetailCardService {
         .minute(request.getMinute())
         .gender(request.getGender())
         .ageGroup(request.getAgeGroup())
+        .location(request.getLocation())
         .build();
 
     detailCardRepository.save(detailCard);

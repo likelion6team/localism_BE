@@ -71,6 +71,9 @@ public class InputReportResponse {
   @Schema(description = "연령대", example = "30대")
   private String ageGroup;
 
+  @Schema(description = "발생지", example = "서울시 강남구 논현로 123")
+  private String location;
+
   @Schema(description = "사고 유형", example = "교통사고, 화상")
   private List<String> accidentType;
 

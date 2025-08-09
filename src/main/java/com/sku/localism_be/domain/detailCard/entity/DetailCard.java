@@ -96,6 +96,9 @@ public class DetailCard extends BaseTimeEntity {
   @Column(length = 20)
   private String ageGroup;               // 연령대 ("20대", "30대", ...)
 
+  @Column(length = 1000)
+  private String location;                  // 발생지 ("서울시 강남구 논현로 123")
+
 
   // 사고 유형, 증상 및 조치
   @Column(length = 1000)
