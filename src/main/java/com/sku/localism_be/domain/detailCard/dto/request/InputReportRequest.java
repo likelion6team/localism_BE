@@ -86,7 +86,7 @@ public class InputReportRequest {
   @Schema(description = "의식 상태", example = "Alert")
   private String consciousness;
 
-  @Schema(description = "메모", example = "현장에서 쓰러져 있음. 반응 없음.")
-  private String memo;
+//  @Schema(description = "메모", example = "현장에서 쓰러져 있음. 반응 없음.")
+//  private String memo;
 
 }

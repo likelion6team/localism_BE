@@ -250,6 +250,7 @@ RTS 점수(rtsScore): %.2f
         .minute(request.getMinute())
         .gender(request.getGender())
         .ageGroup(request.getAgeGroup())
+        .location(request.getLocation())
         .build();
 
     detailCardRepository.save(detailCard);
