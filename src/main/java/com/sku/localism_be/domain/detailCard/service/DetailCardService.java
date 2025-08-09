@@ -8,8 +8,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sku.localism_be.domain.detailCard.dto.request.InputReportRequest;
 import com.sku.localism_be.domain.detailCard.dto.response.InputReportResponse;
 import com.sku.localism_be.domain.detailCard.entity.DetailCard;
+import com.sku.localism_be.domain.detailCard.exception.DetailCardErrorCode;
 import com.sku.localism_be.domain.detailCard.mapper.DetailCardMapper;
 import com.sku.localism_be.domain.detailCard.repository.DetailCardRepository;
+import com.sku.localism_be.global.exception.CustomException;
 import java.net.http.HttpHeaders;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,6 +39,17 @@ public class DetailCardService {
   private String openAiApiKey;
 
 
+  // Get 단일 리포트 조회
+  @Transactional
+  public InputReportResponse getDetailReport(Long id){
+      DetailCard detailCard = detailCardRepository.findById(id).orElseThrow(() -> new CustomException(
+          DetailCardErrorCode.DETAILCARD_NOT_FOUND));
+
+      return detailCardMapper.toInputReportResponse(detailCard);
+  }
+
+
+  // Post 리포트
   @Transactional
   public InputReportResponse inputReport(InputReportRequest request){
 
