@@ -89,20 +89,20 @@ public class RtsService {
     ) * 100.0) / 100.0;  // 소수점 둘째 자리까지
 
 
-
-    // 현상황 (RTS 점수에서 나온 상태)
+    // 현상황 (RTS 점수에서 나온 상태), 한줄 요약
     String currentStatus;
-    if (totalScore >= 9) {
+    String summary;
+    if (totalScore >= 6.0) {
       currentStatus = "안정";
-    } else if (totalScore >= 6) {
+      summary = "환자 상태는 양호합니다. 경과를 관찰하며 조치를 판단하세요.";
+    } else if (totalScore >= 3.0) {
       currentStatus = "주의";
+      summary = "위급 상황으로 진행될 수 있습니다. 신속한 대응을 준비하세요.";
     } else {
       currentStatus = "위험";
+      summary = "환자는 심각한 상태입니다. 즉시 병원 이송이 필요합니다.";
     }
 
-    // [AI] 한줄 요약 (ex. 환자는 심각한 상태입니다. 즉시 병원 이송이 필요합니다.) //
-    String summary;
-    summary = "[AI 예정] 환자는 심각한 상태입니다. 즉시 병원 이송이 필요합니다.";
 
 
     // Response로 변환해서 return //
