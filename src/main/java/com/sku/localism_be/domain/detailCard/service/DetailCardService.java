@@ -1,15 +1,28 @@
 package com.sku.localism_be.domain.detailCard.service;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sku.localism_be.domain.detailCard.dto.request.InputReportRequest;
 import com.sku.localism_be.domain.detailCard.dto.response.InputReportResponse;
 import com.sku.localism_be.domain.detailCard.entity.DetailCard;
+import com.sku.localism_be.domain.detailCard.exception.DetailCardErrorCode;
 import com.sku.localism_be.domain.detailCard.mapper.DetailCardMapper;
 import com.sku.localism_be.domain.detailCard.repository.DetailCardRepository;
+import com.sku.localism_be.global.exception.CustomException;
+import java.net.http.HttpHeaders;
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
 @Slf4j
@@ -19,12 +32,37 @@ public class DetailCardService {
   private final DetailCardRepository detailCardRepository;
   private final DetailCardMapper detailCardMapper;
 
+  private final WebClient openAiWebClient;
+  private final ObjectMapper objectMapper;
 
+  @Value("${openai.api.key}")
+  private String openAiApiKey;
+
+
+  // Get 단일 리포트 조회
+  @Transactional
+  public InputReportResponse getDetailReport(Long id){
+      DetailCard detailCard = detailCardRepository.findById(id).orElseThrow(() -> new CustomException(
+          DetailCardErrorCode.DETAILCARD_NOT_FOUND));
+
+      return detailCardMapper.toInputReportResponse(detailCard);
+  }
+
+  // Get 전체 리포트 조회
+  @Transactional
+  public List<InputReportResponse> getDetailReports(){
+    List<DetailCard> detailCardList = detailCardRepository.findAll();
+
+    return detailCardList.stream().map(detailCardMapper::toInputReportResponse).toList();
+  }
+
+
+  // Post 리포트
   @Transactional
   public InputReportResponse inputReport(InputReportRequest request){
 
 
-    // 호흡수 -> 호흡 점수
+    // 호흡수 -> 호흡 점수(RR)
     Integer respirationScore;
     Integer respirationRate = request.getRespirationRate();
 
@@ -51,7 +89,7 @@ public class DetailCardService {
       pulseScore = 4;
     }
 
-    // 최대 혈압 -> 혈압 점수(수축기 혈압)
+    // 최대 혈압 -> 혈압 점수(수축기 혈압)(SBP)
     Integer bloodPressureScore;
     Integer bloodPressureMax = request.getBloodPressureMax();
 
@@ -68,7 +106,7 @@ public class DetailCardService {
     }
 
 
-    // 의식 -> 의식 상태(), 의식 점수
+    // 의식 -> 의식 상태(), 의식 점수(GCS)
     String consciousness = null;
     Integer consciousnessScore = 0;
 
@@ -101,32 +139,90 @@ public class DetailCardService {
 
 
 
-    // 현상황 (RTS 점수에서 나온 상태)
+    // 현상황 (RTS 점수에서 나온 상태), 한줄 요약
     String currentStatus;
-    if (totalScore >= 9) {
+    String summary;
+    if (totalScore >= 6.0) {
       currentStatus = "안정";
-    } else if (totalScore >= 6) {
+      summary = "환자 상태는 양호합니다. 경과를 관찰하며 조치를 판단하세요.";
+    } else if (totalScore >= 3.0) {
       currentStatus = "주의";
+      summary = "위급 상황으로 진행될 수 있습니다. 신속한 대응을 준비하세요.";
     } else {
       currentStatus = "위험";
+      summary = "환자는 심각한 상태입니다. 즉시 병원 이송이 필요합니다.";
     }
-
-    // [AI] 한줄 요약 (ex. 환자는 심각한 상태입니다. 즉시 병원 이송이 필요합니다.) //
-    String summary;
-    summary = "[AI 예정] 환자는 심각한 상태입니다. 즉시 병원 이송이 필요합니다.";
-
-
-    // 주요 증상 (ex. 흉통(~주요증상), 의식 없음(~의식 상태))
-    String majorSymptoms = "[일단 하는 중]";
-
 
 
 
     // [AI] ai 추천 응급 대응 조치 //
-    String aiRecommendedAction;
-    aiRecommendedAction = "[AI 예정] 산소 투여 진행";
+
+    Map<String, Object> requestMap = objectMapper.convertValue(request, new TypeReference<>() {});
+    requestMap.put("currentStatus", currentStatus);
+    requestMap.put("rtsScore", totalScore);
+
+    String requestJson;
+    try {
+      requestJson = objectMapper.writeValueAsString(requestMap);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException("Request JSON 변환 실패", e);
+    }
+
+    String prompt = """
+당신은 응급구조 전문가입니다.
+
+아래 환자 데이터는 이미 병원으로 이송 중인 응급상황입니다.
+그러므로 "병원으로 이송하세요", "즉시 병원 이송" 등은 절대 포함하지 마세요.
+
+환자 상태(currentStatus): %s
+RTS 점수(rtsScore): %.2f
+
+환자 상태에 따른 응급처치 규칙:
+- 상태가 "안정"이면 저위험 처치만 제안(심폐소생술 금지)
+- 상태가 "주의"이면 예방적 처치 위주 제안
+- 상태가 "위험"이면 고위험 처치도 가능
+
+지금 이송 중 구급차 안에서 응급대원이 할 수 있는 응급처치 3가지를 15자 이내로 제시하세요.
+각 항목은 '진행' 또는 '시행'으로 끝나야 하며, 숫자나 줄바꿈 없이, 오직 JSON 배열만으로 응답하세요.
+
+환자 데이터:
+%s
+""".formatted(currentStatus, totalScore, requestJson);
+
+    String openAiResponse = openAiWebClient.post()
+        .uri("/v1/chat/completions")
+        .header("Authorization", "Bearer " + openAiApiKey)
+        .header("Content-Type", "application/json")
+        .bodyValue(Map.of(
+            "model", "gpt-4",
+            "temperature", 0.4,
+            "messages", List.of(
+                Map.of("role", "system", "content", "너는 응급처치 전문가야."),
+                Map.of("role", "user", "content", prompt)
+            )
+        ))
+        .retrieve()
+        .bodyToMono(String.class)
+        .block();
 
 
+    List<String> actions;
+    try {
+      JsonNode root = objectMapper.readTree(openAiResponse);
+      String content = root.path("choices").get(0).path("message").path("content").asText();
+      log.info("✅ OpenAI 응답 본문: {}", content);
+      actions = objectMapper.readValue(content, new TypeReference<>() {});
+    } catch (Exception e) {
+      throw new RuntimeException("OpenAI 응답 파싱 실패", e);
+    }
+
+
+
+
+    // 사고 유형, 주요 증상 List -> String 으로 만들어서 DB에 저장.
+    String accidentType = String.join(",", request.getAccidentType());
+    String majorSymptoms = String.join(",", request.getMajorSymptoms());
+    String aiAnswer = String.join(",", actions);
 
 
 
@@ -144,8 +240,9 @@ public class DetailCardService {
         .totalScore(totalScore)
         .currentStatus(currentStatus)
         .summary(summary)
+        .accidentType(accidentType)
         .majorSymptoms(majorSymptoms)
-        .aiRecommendedAction(aiRecommendedAction)
+        .aiRecommendedAction(aiAnswer)
         .year(request.getYear())
         .month(request.getMonth())
         .day(request.getDay())
@@ -153,6 +250,7 @@ public class DetailCardService {
         .minute(request.getMinute())
         .gender(request.getGender())
         .ageGroup(request.getAgeGroup())
+        .location(request.getLocation())
         .build();
 
     detailCardRepository.save(detailCard);

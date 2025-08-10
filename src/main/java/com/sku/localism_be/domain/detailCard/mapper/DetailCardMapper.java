@@ -20,7 +20,7 @@ public class DetailCardMapper {
         .bloodPressureScore(detailCard.getBloodPressureScore())
         .consciousness(detailCard.getConsciousness())
         .consciousnessScore(detailCard.getConsciousnessScore())
-        .totalScore(detailCard.getTotalScore())
+        .RTSScore(detailCard.getTotalScore())
         .currentStatus(detailCard.getCurrentStatus())
         .summary(detailCard.getSummary())
         .year(detailCard.getYear())
@@ -30,8 +30,10 @@ public class DetailCardMapper {
         .minute(detailCard.getMinute())
         .gender(detailCard.getGender())
         .ageGroup(detailCard.getAgeGroup())
-        .majorSymptoms(detailCard.getMajorSymptoms())
-        .aiRecommendedAction(detailCard.getAiRecommendedAction())
+        .location(detailCard.getLocation())
+        .accidentType(detailCard.sliceAT())
+        .majorSymptoms(detailCard.sliceMS())
+        .aiRecommendedAction(detailCard.sliceAi())
         .build();
   }
 

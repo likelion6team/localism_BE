@@ -2,6 +2,7 @@ package com.sku.localism_be.domain.detailCard.dto.response;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -16,7 +17,7 @@ public class InputReportResponse {
   @Schema(description = "호흡수", example = "18")
   private Integer respirationRate;
 
-  @Schema(description = "호흡 점수", example = "1")
+  @Schema(description = "호흡 점수(RR)", example = "1")
   private Integer respirationScore;
 
   @Schema(description = "맥박수", example = "85")
@@ -31,17 +32,17 @@ public class InputReportResponse {
   @Schema(description = "최대 혈압", example = "120")
   private Integer bloodPressureMax;
 
-  @Schema(description = "혈압 점수", example = "1")
+  @Schema(description = "혈압 점수(SBP)", example = "1")
   private Integer bloodPressureScore;
 
   @Schema(description = "의식 상태", example = "Alert")
   private String consciousness;
 
-  @Schema(description = "의식 점수", example = "0")
+  @Schema(description = "의식 점수(GCS)", example = "0")
   private Integer consciousnessScore;
 
   @Schema(description = "총점수(RTS)", example = "3")
-  private Double totalScore;
+  private Double RTSScore;
 
   @Schema(description = "현상황", example = "안정")
   private String currentStatus;
@@ -70,11 +71,17 @@ public class InputReportResponse {
   @Schema(description = "연령대", example = "30대")
   private String ageGroup;
 
-  @Schema(description = "주요 증상", example = "가슴 통증, 호흡 곤란")
-  private String majorSymptoms;
+  @Schema(description = "발생지", example = "서울시 강남구 논현로 123")
+  private String location;
 
-  @Schema(description = "AI 추천 응급 대응 조치", example = "119에 신고 후 즉시 병원 이송")
-  private String aiRecommendedAction;
+  @Schema(description = "사고 유형", example = "교통사고, 화상")
+  private List<String> accidentType;
+
+  @Schema(description = "주요 증상", example = "가슴 통증, 호흡 곤란")
+  private List<String> majorSymptoms;
+
+  @Schema(description = "AI 추천 응급 대응 조치(3개)", example = "119에 신고 후 즉시 병원 이송")
+  private List<String> aiRecommendedAction;
 
 
 }
