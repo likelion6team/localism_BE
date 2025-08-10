@@ -55,7 +55,7 @@ public class DetailCardService {
     Integer bloodPressureScore;
     Integer bloodPressureMax = request.getBloodPressureMax();
 
-    if (bloodPressureMax >= 89) {
+    if (bloodPressureMax > 89) {
       bloodPressureScore = 4;
     } else if (bloodPressureMax >= 76) {
       bloodPressureScore = 3;
