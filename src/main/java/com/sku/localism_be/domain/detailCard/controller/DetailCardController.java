@@ -29,7 +29,7 @@ public class DetailCardController {
 
 
   // 리포트를 작성 받은 request를 이용해서 계산, DB에 저장하고, response로 리턴.
-  @Operation(summary="리포트 작성 API", description ="리포트를 작성해 요약 결과 리포트를 만들기 위한 API")
+  @Operation(summary="리포트 작성 API", description ="리포트를 작성해 요약 결과 리포트를 만들기 위한 API!!!")
   @PostMapping
   public ResponseEntity<BaseResponse<InputReportResponse>> inputReport(
       @RequestBody @Valid InputReportRequest inputReportRequest) {
