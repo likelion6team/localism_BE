@@ -6,11 +6,17 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface DetailCardRepository extends JpaRepository<DetailCard, Long>  {
 
-  List<DetailCard> findByYearAndMonthAndDay(Integer year, Integer month, Integer day);
+  List<DetailCard> findByIdInAndYearAndMonthAndDay(
+      List<Long> ids, Integer year, Integer month, Integer day);
+
+  List<DetailCard> findByIdInAndYearAndMonthAndDayOrderByHourAscMinuteAsc(
+      List<Long> ids, Integer year, Integer month, Integer day);
 
   List<DetailCard> findByYearAndMonthAndDayAndHourAndMinuteOrderByYearDescMonthDescDayDescHourDescMinuteDesc(
       Integer year, Integer month, Integer day, Integer hour, Integer minute
   );
+
+  List<DetailCard> findTop5ByIdInOrderByYearDescMonthDescDayDescHourDescMinuteDesc(List<Long> ids);
 
 
 }
