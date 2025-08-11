@@ -23,18 +23,18 @@ public class CalendarController {
 
   private final CalendarService calendarService;
 
-
-  // 선택한 날짜와 작성한 리포트 id 배열을 받아서, 해당 일자의 요약 리포트 리스트를 리턴.
-  @Operation(summary="요약 리포트 날짜별 조회 API", description ="작성한 리포트 중 해당 일자에 작성된 요약 리포트 리스트 조회를 위한 API")
-  @GetMapping("/month")
-  public ResponseEntity<BaseResponse<SmallReportListResponse>> getCountOnMonth(
-      @RequestParam List<Long> ids,
-      @RequestParam int year,
-      @RequestParam int month
-  ) {
-    SmallReportListResponse response = calendarService.getCountOnMonth(ids, year, month);
-    return ResponseEntity.ok(BaseResponse.success("요약 리포트 리스트 날짜별 조회 응답을 성공했습니다!", response));
-  }
+//
+//  // 선택한 날짜와 작성한 리포트 id 배열을 받아서, 해당 일자의 요약 리포트 리스트를 리턴.
+//  @Operation(summary="요약 리포트 날짜별 조회 API", description ="작성한 리포트 중 해당 일자에 작성된 요약 리포트 리스트 조회를 위한 API")
+//  @GetMapping("/month")
+//  public ResponseEntity<BaseResponse<SmallReportListResponse>> getCountOnMonth(
+//      @RequestParam List<Long> ids,
+//      @RequestParam int year,
+//      @RequestParam int month
+//  ) {
+//    SmallReportListResponse response = calendarService.getCountOnMonth(ids, year, month);
+//    return ResponseEntity.ok(BaseResponse.success("요약 리포트 리스트 날짜별 조회 응답을 성공했습니다!", response));
+//  }
 
 
 

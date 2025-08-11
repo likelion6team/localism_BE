@@ -1,0 +1,27 @@
+package com.sku.localism_be.domain.report.dto.response;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Schema(title = "ReportResponse DTO", description = "신고 리포트 응답 데이터")
+public class ReportResponse {
+
+  @Schema(description = "주요 증상", example = "[\"가슴 통증\", \"호흡 곤란\"]")
+  private List<String> majorSymptoms;
+
+  @Schema(description = "위치", example = "서울시 강남구 논현로 123")
+  private String location;
+
+  @Schema(description = "사건 발생 시각", example = "2025-08-12T13:45:00")
+  private LocalDateTime created;
+}
