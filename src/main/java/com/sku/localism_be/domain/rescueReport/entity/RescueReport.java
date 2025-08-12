@@ -1,13 +1,13 @@
 package com.sku.localism_be.domain.rescueReport.entity;
 
 
+import com.sku.localism_be.domain.report.entity.Report;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-
 
 @Entity
 @Getter
@@ -31,8 +31,9 @@ public class RescueReport {
   @Column
   private Boolean isReceived; // 수신 여부
 
-  @Column(nullable = false)
-  private Long reportId; // 신고 고유 ID (FK)
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "report_id", nullable = false)
+  private Report report;  // 신고 고유 ID 대신 객체 참조
 
   @Column(length = 1000)
   private String recommendedResources; // 추천 자원 (comma-separated)
