@@ -13,6 +13,7 @@ public class ReportMapper {
     }
 
     return ReportResponse.builder()
+        .id(report.getId())
         .majorSymptoms(report.sliceMainSymptoms()) // 엔티티의 문자열 → 리스트 변환 메서드 사용
         .location(report.getLocation())
         .created(report.getCreated())

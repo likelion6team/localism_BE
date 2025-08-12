@@ -15,6 +15,8 @@ import java.util.List;
 @AllArgsConstructor
 @Schema(title = "ReportResponse DTO", description = "신고 리포트 응답 데이터")
 public class ReportResponse {
+  @Schema(description = "신고 리포트 ID", example = "1")
+  private Long id;
 
   @Schema(description = "주요 증상", example = "[\"가슴 통증\", \"호흡 곤란\"]")
   private List<String> majorSymptoms;
