@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sku.localism_be.domain.detailCard.dto.response.SmallReportListResponse;
 import com.sku.localism_be.domain.report.dto.request.ReportRequest;
 import com.sku.localism_be.domain.report.dto.response.BasicReportResponse;
+import com.sku.localism_be.domain.report.dto.response.DetailReportResponse;
 import com.sku.localism_be.domain.report.dto.response.ReportListResponse;
 import com.sku.localism_be.domain.report.service.ReportService;
 import com.sku.localism_be.global.response.BaseResponse;
@@ -19,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -75,6 +77,14 @@ public class ReportController {
   public ResponseEntity<BaseResponse<ReportListResponse>> getWaitReport() {
     ReportListResponse response = reportService.getWaitReport();
     return ResponseEntity.ok(BaseResponse.success("구조 대기 중인 신고 리포트 리스트 최신순 조회 응답을 성공했습니다!", response));
+  }
+
+  // 상세 사고 리포트 조회
+  @Operation(summary="상세 신고 리포트 조회 API", description ="id와 일치하는 단일 신고 리포트 조회를 위한 API")
+  @GetMapping("/{id}")
+  public ResponseEntity<BaseResponse<DetailReportResponse>> getEveryReport(@PathVariable Long id) {
+    DetailReportResponse response = reportService.getReport(id);
+    return ResponseEntity.ok(BaseResponse.success("상세 신고 리포트 조회 응답을 성공했습니다!", response));
   }
 
 }

@@ -4,13 +4,17 @@ package com.sku.localism_be.domain.report.service;
 import com.sku.localism_be.domain.detailCard.dto.response.SmallReportListResponse;
 import com.sku.localism_be.domain.detailCard.dto.response.SmallReportResponse;
 import com.sku.localism_be.domain.detailCard.entity.DetailCard;
+import com.sku.localism_be.domain.detailCard.exception.DetailCardErrorCode;
 import com.sku.localism_be.domain.report.dto.request.ReportRequest;
 import com.sku.localism_be.domain.report.dto.response.BasicReportResponse;
+import com.sku.localism_be.domain.report.dto.response.DetailReportResponse;
 import com.sku.localism_be.domain.report.dto.response.ReportListResponse;
 import com.sku.localism_be.domain.report.dto.response.ReportResponse;
 import com.sku.localism_be.domain.report.entity.Report;
+import com.sku.localism_be.domain.report.exception.ReportErrorCode;
 import com.sku.localism_be.domain.report.mapper.ReportMapper;
 import com.sku.localism_be.domain.report.repository.ReportRepository;
+import com.sku.localism_be.global.exception.CustomException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -137,6 +141,17 @@ public class ReportService {
         .reports(responseList)
         .totalCount(responseList.size())
         .build();
+  }
+
+
+  // 단일 신고 리포트 가져오기
+  @Transactional
+  public DetailReportResponse getReport(Long id){
+    // id와 일치하는 신고 리포트 가져옴.
+    Report report = reportRepository.findById(id).orElseThrow(() -> new CustomException(
+        ReportErrorCode.REPORT_NOT_FOUND));
+
+    return reportMapper.toDetailReportResponse(report);
   }
 
 }
