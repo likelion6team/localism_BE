@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/RescueReports")
+@RequestMapping("/api/rescueReports")
 @Tag(name="RescueReport", description="RescueReport 관리 API")
 public class RescueReportController {
 
