@@ -29,6 +29,7 @@ public class ReportMapper {
 
     return DetailReportResponse.builder()
         .id(report.getId())
+        .consciousnessStatus(report.getConsciousnessStatus())
         .accidentType(report.sliceAccidentType())
         .majorSymptoms(report.sliceMainSymptoms())
         .breathingStatus(report.getBreathingStatus())

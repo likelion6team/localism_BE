@@ -19,6 +19,9 @@ public class DetailReportResponse {
   @Schema(description = "신고 리포트 ID", example = "1")
   private Long id;
 
+  @Schema(description = "의식", example = "정상")
+  private String consciousnessStatus;
+
   @Schema(description = "사고 유형", example = "[\"교통사고\", \"화재\"]")
   private List<String> accidentType;
 
@@ -28,7 +31,7 @@ public class DetailReportResponse {
   @Schema(description = "호흡 상태", example = "정상")
   private String breathingStatus;
 
-  @Schema(description = "사진 유무", example = "true")
+  @Schema(description = "사진 유무", example = "false")
   private Boolean isPhotoPath;
 
   @Schema(description = "위치", example = "서울시 강남구 논현로 123")

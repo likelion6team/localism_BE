@@ -20,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ReportRequest {
 
   @NotBlank(message = "환자 의식 상태는 필수입니다.")
-  @Schema(description = "환자 의식 상태", example = "Alert")
+  @Schema(description = "환자 의식 상태", example = "정상")
   private String consciousnessStatus;
 
   @NotEmpty(message = "사고 유형은 필수입니다.")
