@@ -1,12 +1,10 @@
 package com.sku.localism_be.domain.rescueReport.service;
 
 
-import com.sku.localism_be.domain.detailCard.dto.response.SmallReportListResponse;
-import com.sku.localism_be.domain.report.dto.request.ReportRequest;
-import com.sku.localism_be.domain.report.dto.response.DetailReportResponse;
-import com.sku.localism_be.domain.report.dto.response.PostReportResponse;
-import com.sku.localism_be.domain.report.dto.response.ReportListResponse;
-import com.sku.localism_be.domain.report.dto.response.ReportResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sku.localism_be.domain.report.entity.Report;
 import com.sku.localism_be.domain.report.exception.ReportErrorCode;
 import com.sku.localism_be.domain.report.repository.ReportRepository;
@@ -20,26 +18,16 @@ import com.sku.localism_be.domain.rescueReport.exception.RescueReportErrorCode;
 import com.sku.localism_be.domain.rescueReport.mapper.RescueReportMapper;
 import com.sku.localism_be.domain.rescueReport.repository.RescueReportRepository;
 import com.sku.localism_be.global.exception.CustomException;
-import com.sku.localism_be.global.response.BaseResponse;
-import io.swagger.v3.oas.annotations.Operation;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
 @Slf4j
@@ -50,10 +38,24 @@ public class RescueReportService {
   private final RescueReportMapper rescueReportMapper;
   private final ReportRepository reportRepository;
 
+  private final WebClient openAiWebClient;
+  private final ObjectMapper objectMapper;
+
+  @Value("${openai.api.key}")
+  private String openAiApiKey;
+
   @Transactional
   public PostRescueReportResponse inputRescueReport(RescueReportRequest request) {
+    // 사고 리포트가 구조 되었는지 확인
+    boolean reported = rescueReportRepository.existsByReportId(request.getReportId());
+    if (reported) {
+      throw new CustomException(RescueReportErrorCode.RESCUE_REPORT_ALREADY_EXISTS);
+    }
 
-    // 음성 인식 로직
+
+    // 일치하는 사고 리포트 가져오기
+    Report report = reportRepository.findById(request.getReportId()).orElseThrow(() -> new CustomException(
+        ReportErrorCode.REPORT_NOT_FOUND));
 
 
 
@@ -62,25 +64,75 @@ public class RescueReportService {
     int time = 7;
 
 
-    
-    // 일치하는 사고 리포트 가져오기
-    Report report = reportRepository.findById(request.getReportId()).orElseThrow(() -> new CustomException(
-        ReportErrorCode.REPORT_NOT_FOUND));
+    // 음성 인식 로직
+    String rescuerDetails = request.getDetails();
+
 
     // ai 추천 조치
-    List<String> recommend = new ArrayList<>();
 
     // ai 프롬프트
+    Map<String, Object> patientData = new LinkedHashMap<>();
+    patientData.put("환자 의식 상태", report.getConsciousnessStatus());
+    patientData.put("호흡 상태", report.getBreathingStatus());
+    patientData.put("사고 유형", report.getAccidentType());
+    patientData.put("주요 증상", report.getMainSymptoms());
+    patientData.put("구조대원 현장 보고", rescuerDetails);
+
+    String patientJson;
+    try {
+      patientJson = objectMapper.writeValueAsString(patientData);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException("환자 데이터 JSON 변환 실패", e);
+    }
 
 
-    // 리스트 -> String
-    recommend.add("CPR 실시");
-    recommend.add("전기 충격");
-    recommend.add("가족 연락");
+    // 5. AI 프롬프트 구성
+    String prompt = """
+당신은 응급실 전문의입니다.
+아래 환자는 현재 구급차로 병원에 이송 중이며, 이송 시간은 약 %d분입니다.
+환자 데이터를 종합 분석하여, 병원 도착 직후 시행해야 할 전문적인 응급 처치 3가지를 제시하세요.
 
-    String r =String.join(",", recommend);
+조건:
+- 각 처치는 15자 이내
+- '진행' 또는 '시행'으로 끝날 것
+- 반드시 JSON 배열만 반환 (백틱, 코드 블록 없이)
+- 예: ["기관삽관 시행", "심전도 모니터링 진행", "정맥로 확보 시행"]
 
+환자 데이터:
+%s
+""".formatted(time, patientJson);
 
+    // 6. OpenAI API 호출
+    String openAiResponse = openAiWebClient.post()
+        .uri("/v1/chat/completions")
+        .header("Authorization", "Bearer " + openAiApiKey)
+        .header("Content-Type", "application/json")
+        .bodyValue(Map.of(
+            "model", "gpt-4o-mini",
+            "temperature", 0.4,
+            "messages", List.of(
+                Map.of("role", "system", "content", "너는 응급실 전문의이다."),
+                Map.of("role", "user", "content", prompt)
+            )
+        ))
+        .retrieve()
+        .bodyToMono(String.class)
+        .block();
+
+    // 7. 응답 파싱
+    List<String> recommendations;
+    try {
+      JsonNode root = objectMapper.readTree(openAiResponse);
+      String content = root.path("choices").get(0).path("message").path("content").asText();
+
+      // ```json ... ``` 제거 (만약 포함돼 있으면)
+      content = content.replaceAll("(?s)^```json\\s*", "").replaceAll("(?s)```\\s*$", "").trim();
+
+      log.info("OpenAI 응답: {}", content);
+      recommendations = objectMapper.readValue(content, new TypeReference<>() {});
+    } catch (Exception e) {
+      throw new RuntimeException("OpenAI 응답 파싱 실패", e);
+    }
 
 
     // DB에 저장
@@ -89,7 +141,7 @@ public class RescueReportService {
         .hospital(hospital)
         .eta(time)
         .isReceived(false)
-        .recommendedResources(r)
+        .recommendedResources(String.join(",", recommendations))
         .report(report)
         //.voice(voice)
         .build();

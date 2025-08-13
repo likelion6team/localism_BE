@@ -10,13 +10,11 @@ import com.sku.localism_be.domain.report.dto.response.ReportListResponse;
 import com.sku.localism_be.domain.report.service.ReportService;
 import com.sku.localism_be.global.response.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.net.MalformedURLException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -54,6 +52,10 @@ public class ReportController {
   @Operation(summary = "신고 리포트 작성 API", description = "신고자가 작성하는 신고 리포트 작성 API")
   @PostMapping(value = "/test-input-report", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<BaseResponse<PostReportResponse>> testInputReport(
+      @Parameter(
+          description = "신고 리포트 JSON 데이터",
+          example = "{\"consciousnessStatus\":\"정상\",\"accidentType\":[\"교통사고\",\"화재\"],\"mainSymptoms\":[\"호흡 곤란\",\"출혈\"],\"breathingStatus\":\"정상\",\"location\":\"서울시 강남구 논현로 123\",\"lat\":37.5665,\"lng\":126.9780}"
+      )
       @RequestParam("data") String dataJson,
       @RequestPart(value = "image", required = false) MultipartFile image) throws JsonProcessingException {
 

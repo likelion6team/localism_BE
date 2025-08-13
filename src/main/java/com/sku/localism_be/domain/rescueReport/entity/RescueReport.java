@@ -5,7 +5,6 @@ import com.sku.localism_be.domain.report.entity.Report;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 

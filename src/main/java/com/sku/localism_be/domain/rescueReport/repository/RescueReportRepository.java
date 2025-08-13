@@ -7,4 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RescueReportRepository extends JpaRepository<RescueReport, Long> {
   List<RescueReport> findByIsReceivedFalseOrderByEtaAsc();
+  boolean existsByReportId(Long reportId);
 }

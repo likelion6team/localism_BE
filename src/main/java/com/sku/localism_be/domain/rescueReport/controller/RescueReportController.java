@@ -1,26 +1,17 @@
 package com.sku.localism_be.domain.rescueReport.controller;
 
 
-import com.sku.localism_be.domain.detailCard.dto.request.InputReportRequest;
-import com.sku.localism_be.domain.detailCard.dto.response.InputReportResponse;
-import com.sku.localism_be.domain.report.dto.response.DetailReportResponse;
-import com.sku.localism_be.domain.report.dto.response.ReportListResponse;
-import com.sku.localism_be.domain.report.entity.Report;
-import com.sku.localism_be.domain.report.exception.ReportErrorCode;
-import com.sku.localism_be.domain.report.service.ReportService;
 import com.sku.localism_be.domain.rescueReport.dto.request.RescueReportRequest;
 import com.sku.localism_be.domain.rescueReport.dto.response.DetailRescueReportResponse;
 import com.sku.localism_be.domain.rescueReport.dto.response.PostRescueReportResponse;
 import com.sku.localism_be.domain.rescueReport.dto.response.RescueReportListResponse;
 import com.sku.localism_be.domain.rescueReport.service.RescueReportService;
-import com.sku.localism_be.global.exception.CustomException;
 import com.sku.localism_be.global.response.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;

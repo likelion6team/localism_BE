@@ -2,7 +2,6 @@ package com.sku.localism_be.domain.report.dto.response;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Column;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
