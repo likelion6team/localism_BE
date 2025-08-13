@@ -3,20 +3,26 @@ package com.sku.localism_be.domain.rescueReport.controller;
 
 import com.sku.localism_be.domain.detailCard.dto.request.InputReportRequest;
 import com.sku.localism_be.domain.detailCard.dto.response.InputReportResponse;
+import com.sku.localism_be.domain.report.dto.response.DetailReportResponse;
 import com.sku.localism_be.domain.report.dto.response.ReportListResponse;
+import com.sku.localism_be.domain.report.entity.Report;
+import com.sku.localism_be.domain.report.exception.ReportErrorCode;
 import com.sku.localism_be.domain.report.service.ReportService;
 import com.sku.localism_be.domain.rescueReport.dto.request.RescueReportRequest;
 import com.sku.localism_be.domain.rescueReport.dto.response.DetailRescueReportResponse;
 import com.sku.localism_be.domain.rescueReport.dto.response.PostRescueReportResponse;
 import com.sku.localism_be.domain.rescueReport.dto.response.RescueReportListResponse;
 import com.sku.localism_be.domain.rescueReport.service.RescueReportService;
+import com.sku.localism_be.global.exception.CustomException;
 import com.sku.localism_be.global.response.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,6 +60,14 @@ public class RescueReportController {
     return ResponseEntity.ok(BaseResponse.success("구조 대기 중인 구조 리포트 리스트 최신 ETA순 조회 응답을 성공했습니다!", response));
   }
 
+
+  // 상세 사고 리포트 조회
+  @Operation(summary="상세 구조 리포트 조회 API", description ="id와 일치하는 단일 구조 리포트 조회를 위한 API")
+  @GetMapping("/{id}")
+  public ResponseEntity<BaseResponse<DetailRescueReportResponse>> getRescueReportById(@PathVariable Long id) {
+    DetailRescueReportResponse response = rescueReportService.getRescueReport(id);
+    return ResponseEntity.ok(BaseResponse.success("상세 구조 리포트 조회 응답을 성공했습니다!", response));
+  }
 
 
 }

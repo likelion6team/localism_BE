@@ -16,6 +16,9 @@ import java.util.List;
 @Schema(title = "RescueReportResponse DTO", description = "구조 리포트 목록 응답 데이터")
 public class RescueReportResponse {
 
+  @Schema(description = "구조 리포트 ID", example = "1")
+  private Long id;
+
   @Schema(description = "신고 ID", example = "1")
   private Long reportId;
 

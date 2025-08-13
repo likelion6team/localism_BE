@@ -3,6 +3,7 @@ package com.sku.localism_be.domain.rescueReport.service;
 
 import com.sku.localism_be.domain.detailCard.dto.response.SmallReportListResponse;
 import com.sku.localism_be.domain.report.dto.request.ReportRequest;
+import com.sku.localism_be.domain.report.dto.response.DetailReportResponse;
 import com.sku.localism_be.domain.report.dto.response.PostReportResponse;
 import com.sku.localism_be.domain.report.dto.response.ReportListResponse;
 import com.sku.localism_be.domain.report.dto.response.ReportResponse;
@@ -10,13 +11,17 @@ import com.sku.localism_be.domain.report.entity.Report;
 import com.sku.localism_be.domain.report.exception.ReportErrorCode;
 import com.sku.localism_be.domain.report.repository.ReportRepository;
 import com.sku.localism_be.domain.rescueReport.dto.request.RescueReportRequest;
+import com.sku.localism_be.domain.rescueReport.dto.response.DetailRescueReportResponse;
 import com.sku.localism_be.domain.rescueReport.dto.response.PostRescueReportResponse;
 import com.sku.localism_be.domain.rescueReport.dto.response.RescueReportListResponse;
 import com.sku.localism_be.domain.rescueReport.dto.response.RescueReportResponse;
 import com.sku.localism_be.domain.rescueReport.entity.RescueReport;
+import com.sku.localism_be.domain.rescueReport.exception.RescueReportErrorCode;
 import com.sku.localism_be.domain.rescueReport.mapper.RescueReportMapper;
 import com.sku.localism_be.domain.rescueReport.repository.RescueReportRepository;
 import com.sku.localism_be.global.exception.CustomException;
+import com.sku.localism_be.global.response.BaseResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,8 +34,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -144,7 +152,15 @@ public class RescueReportService {
 
 
 
+  // 단일 구조 리포트 가져오기
+  @Transactional
+  public DetailRescueReportResponse getRescueReport(Long id){
+    // id와 일치하는 구조 리포트 가져옴.
+    RescueReport report = rescueReportRepository.findById(id).orElseThrow(() -> new CustomException(
+        RescueReportErrorCode.RESCUE_REPORT_NOT_FOUND));
 
+    return rescueReportMapper.toDetailRescueReportResponse(report);
+  }
 
 
 

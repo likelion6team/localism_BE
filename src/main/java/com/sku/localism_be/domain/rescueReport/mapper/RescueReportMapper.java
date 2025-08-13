@@ -18,10 +18,13 @@ public class RescueReportMapper {
     Report report = rescueReport.getReport();
 
     return DetailRescueReportResponse.builder()
+        .id(rescueReport.getId())
         .reportId(report.getId())
+        .created(report.getCreated())
         .location(report.getLocation())
+        .eta(rescueReport.getEta())
         .details(rescueReport.getDetails())
-        .keywords(null)
+        //.keywords(null)
         .aiRecommendations(rescueReport.sliceRecommendedResources())
         .build();
   }
@@ -34,6 +37,7 @@ public class RescueReportMapper {
     Report report = rescueReport.getReport();
 
     return RescueReportResponse.builder()
+        .id(rescueReport.getId())
         .reportId(report.getId())
         .created(report.getCreated())
         .consciousness(report.getConsciousnessStatus())

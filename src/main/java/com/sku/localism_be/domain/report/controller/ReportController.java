@@ -83,7 +83,7 @@ public class ReportController {
   // 상세 사고 리포트 조회
   @Operation(summary="상세 신고 리포트 조회 API", description ="id와 일치하는 단일 신고 리포트 조회를 위한 API")
   @GetMapping("/{id}")
-  public ResponseEntity<BaseResponse<DetailReportResponse>> getEveryReport(@PathVariable Long id) {
+  public ResponseEntity<BaseResponse<DetailReportResponse>> getReportById(@PathVariable Long id) {
     DetailReportResponse response = reportService.getReport(id);
     return ResponseEntity.ok(BaseResponse.success("상세 신고 리포트 조회 응답을 성공했습니다!", response));
   }
