@@ -36,8 +36,8 @@ public class ReportService {
   private final ReportRepository reportRepository;
   private final ReportMapper reportMapper;
 
-  // private final String uploadDir = "/home/ubuntu/uploads";
-  private final String uploadDir = "C:/uploadRESQ/";
+  private final String uploadDir = "/home/ubuntu/hackaton/uploads";
+  //private final String uploadDir = "C:/uploadRESQ/";
 
   // Post 리포트
   @Transactional
