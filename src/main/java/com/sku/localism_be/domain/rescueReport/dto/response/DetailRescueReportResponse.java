@@ -39,4 +39,7 @@ public class DetailRescueReportResponse {
 
   @Schema(description = "AI 추천", example = "[\"심폐소생술 준비\", \"산소 공급\"]")
   private List<String> aiRecommendations;
+
+  @Schema(description = "주요 증상", example = "[\"가슴 통증\", \"호흡 곤란\"]")
+  private List<String> majorSymptoms;
 }

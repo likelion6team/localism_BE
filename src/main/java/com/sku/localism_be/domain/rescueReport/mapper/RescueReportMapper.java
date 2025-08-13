@@ -26,6 +26,7 @@ public class RescueReportMapper {
         .details(rescueReport.getDetails())
         //.keywords(null)
         .aiRecommendations(rescueReport.sliceRecommendedResources())
+        .majorSymptoms(report.sliceMainSymptoms())
         .build();
   }
 

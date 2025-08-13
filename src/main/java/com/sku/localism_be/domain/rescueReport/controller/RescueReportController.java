@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -67,6 +68,15 @@ public class RescueReportController {
   public ResponseEntity<BaseResponse<DetailRescueReportResponse>> getRescueReportById(@PathVariable Long id) {
     DetailRescueReportResponse response = rescueReportService.getRescueReport(id);
     return ResponseEntity.ok(BaseResponse.success("상세 구조 리포트 조회 응답을 성공했습니다!", response));
+  }
+
+
+  // 사고 리포트 구조 완료로 업데이트
+  @Operation(summary="구조 리포트 완료 처리 API", description="버튼 클릭 시 구조 리포트를 완료 처리(isReceived = true) 합니다.")
+  @PatchMapping("/{id}/complete")  // PATCH로 변경
+  public ResponseEntity<BaseResponse<String>> completeRescueReport(@PathVariable Long id) {
+    rescueReportService.completeRescueReport(id);
+    return ResponseEntity.ok(BaseResponse.success("구조 리포트 완료 처리를 성공했습니다!"));
   }
 
 

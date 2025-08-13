@@ -164,4 +164,18 @@ public class RescueReportService {
 
 
 
+
+  // 사고 리포트 완료 처리하는 로직.(isReceived를 true로 해서 저장)
+  @Transactional
+  public void completeRescueReport(Long rescueReportId) {
+    // 1. 구조 리포트 조회
+    RescueReport rescueReport = rescueReportRepository.findById(rescueReportId)
+        .orElseThrow(() -> new CustomException(RescueReportErrorCode.RESCUE_REPORT_NOT_FOUND));
+
+    // 2. isReceived를 true로 변경
+    rescueReport.setIsReceived(true);
+
+    // 3. @Transactional 덕분에 JPA가 자동으로 DB 반영
+  }
+
 }
