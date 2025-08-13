@@ -23,20 +23,29 @@ public class RescueReport {
   private Long id; // 구조 ID
 
   @Column(length = 1000)
-  private String details; // 구체 사항
+  private String details; // 구체 사항 (음성 요약본)
+
+  @Column(length = 1000)
+  private String hospital; // 병원명
 
   @Column
-  private LocalDateTime eta; // ETA(예상도착시간)
+  private Integer eta; // ETA(예상도착시간)
+  //private LocalDateTime eta; // ETA(예상도착시간)
 
   @Column
   private Boolean isReceived; // 수신 여부
+
+  @Column(length = 1000)
+  private String recommendedResources; // 추천 자원 (comma-separated)
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "report_id", nullable = false)
   private Report report;  // 신고 고유 ID 대신 객체 참조
 
-  @Column(length = 1000)
-  private String recommendedResources; // 추천 자원 (comma-separated)
+//  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+//  @JoinColumn(name = "voice_id", nullable = false)
+//  private Voice voice;  // 음성 고유 ID 대신 객체 참조
+
 
   // ====== 리스트 변환 메서드 ======
   public List<String> sliceRecommendedResources() {

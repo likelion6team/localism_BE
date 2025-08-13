@@ -2,6 +2,7 @@ package com.sku.localism_be.domain.rescueReport.mapper;
 
 import com.sku.localism_be.domain.report.entity.Report;
 import com.sku.localism_be.domain.rescueReport.dto.response.DetailRescueReportResponse;
+import com.sku.localism_be.domain.rescueReport.dto.response.PostRescueReportResponse;
 import com.sku.localism_be.domain.rescueReport.dto.response.RescueReportResponse;
 import com.sku.localism_be.domain.rescueReport.entity.RescueReport;
 import org.springframework.stereotype.Component;
@@ -39,4 +40,7 @@ public class RescueReportMapper {
         .majorSymptoms(report.sliceMainSymptoms())
         .build();
   }
+
+
+
 }

@@ -1,11 +1,32 @@
 package com.sku.localism_be.domain.rescueReport.service;
 
 
+import com.sku.localism_be.domain.detailCard.dto.response.SmallReportListResponse;
+import com.sku.localism_be.domain.report.dto.request.ReportRequest;
+import com.sku.localism_be.domain.report.dto.response.PostReportResponse;
+import com.sku.localism_be.domain.report.entity.Report;
+import com.sku.localism_be.domain.report.exception.ReportErrorCode;
+import com.sku.localism_be.domain.report.repository.ReportRepository;
+import com.sku.localism_be.domain.rescueReport.dto.request.RescueReportRequest;
+import com.sku.localism_be.domain.rescueReport.dto.response.PostRescueReportResponse;
+import com.sku.localism_be.domain.rescueReport.entity.RescueReport;
 import com.sku.localism_be.domain.rescueReport.mapper.RescueReportMapper;
 import com.sku.localism_be.domain.rescueReport.repository.RescueReportRepository;
+import com.sku.localism_be.global.exception.CustomException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Slf4j
@@ -14,8 +35,64 @@ public class RescueReportService {
 
   private final RescueReportRepository rescueReportRepository;
   private final RescueReportMapper rescueReportMapper;
+  private final ReportRepository reportRepository;
+
+  @Transactional
+  public PostRescueReportResponse inputRescueReport(RescueReportRequest request) {
+
+    // 음성 인식 로직
 
 
+
+    // 병원 예상 시간 로직
+    String hospital = "강남베드로병원";
+    int time = 7;
+
+
+    
+    // 일치하는 사고 리포트 가져오기
+    Report report = reportRepository.findById(request.getReportId()).orElseThrow(() -> new CustomException(
+        ReportErrorCode.REPORT_NOT_FOUND));
+
+    // ai 추천 조치
+    List<String> recommend = new ArrayList<>();
+
+    // ai 프롬프트
+
+
+    // 리스트 -> String
+    recommend.add("CPR 실시");
+    recommend.add("전기 충격");
+    recommend.add("가족 연락");
+
+    String r =String.join(",", recommend);
+
+
+
+
+    // DB에 저장
+    RescueReport rescueReport = RescueReport.builder()
+        .details("음성 준비 중...")
+        .hospital(hospital)
+        .eta(time)
+        .isReceived(false)
+        .recommendedResources(r)
+        .report(report)
+        //.voice(voice)
+        .build();
+
+
+    RescueReport savedReport = rescueReportRepository.save(rescueReport);
+
+
+    return PostRescueReportResponse.builder()
+        .id(savedReport.getId())
+        .reportId(savedReport.getReport().getId())
+        .hospital(savedReport.getHospital())
+        .eta(savedReport.getEta())
+        .build();
+
+  }
 
 
 }

@@ -51,6 +51,7 @@ public class ReportController {
   */
 
   // API 테스트용 (+ Json 파싱)
+  @Operation(summary = "신고 리포트 작성 API", description = "신고자가 작성하는 신고 리포트 작성 API")
   @PostMapping(value = "/test-input-report", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<BaseResponse<PostReportResponse>> testInputReport(
       @RequestParam("data") String dataJson,
@@ -60,7 +61,7 @@ public class ReportController {
     ReportRequest request = mapper.readValue(dataJson, ReportRequest.class);
 
     PostReportResponse response = reportService.inputReport(request, image);
-    return ResponseEntity.ok(BaseResponse.success("상세 리포트 결과 응답을 성공했습니다!", response));
+    return ResponseEntity.ok(BaseResponse.success("신고 리포트 작성을 성공했습니다!", response));
   }
 
   // (확인용) 작성된 전체 신고 리포트 리스트 조회

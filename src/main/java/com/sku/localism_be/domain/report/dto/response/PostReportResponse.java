@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(title = "PostReportResponse DTO", description = "신고 리포트 응답 데이터")
+@Schema(title = "PostReportResponse DTO", description = "신고 리포트 작성 응답 데이터")
 public class PostReportResponse {
 
   @Schema(description = "신고 리포트 ID", example = "1")
