@@ -23,9 +23,6 @@ public class Report {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id; // 신고 고유 ID
 
-  @Column(length = 100)
-  private String reporter; // 신고자
-
   @Column(length = 1000)
   private String location; // 위치
 
@@ -51,23 +48,11 @@ public class Report {
   @Column(length = 50, nullable = false)
   private String breathingStatus; // 호흡 상태
 
-  @Column(length = 50, nullable = false)
-  private String bleedingLevel; // 출혈 양상 정도
-
-  @Column(length = 255)
-  private String medicalHistory; // 기존 병력
-
   @Column(length = 500)
   private String photoPath; // 사진 저장 경로
 
   @Column(nullable = false)
   private Boolean isRescue = false; // 구조 여부 (기본 false)
-
-  @Column(length = 50, nullable = false)
-  private String caseId; // 케이스 ID
-
-  @Column
-  private LocalDateTime eta; // ETA(예상도착시간)
 
   // ====== 리스트 변환 메서드 ======
   public List<String> sliceAccidentType() {

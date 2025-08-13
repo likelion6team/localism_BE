@@ -3,26 +3,20 @@ package com.sku.localism_be.domain.report.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sku.localism_be.domain.detailCard.dto.response.SmallReportListResponse;
 import com.sku.localism_be.domain.report.dto.request.ReportRequest;
-import com.sku.localism_be.domain.report.dto.response.BasicReportResponse;
+import com.sku.localism_be.domain.report.dto.response.PostReportResponse;
 import com.sku.localism_be.domain.report.dto.response.DetailReportResponse;
 import com.sku.localism_be.domain.report.dto.response.ReportListResponse;
 import com.sku.localism_be.domain.report.service.ReportService;
 import com.sku.localism_be.global.response.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -52,14 +46,14 @@ public class ReportController {
 
   // API 테스트용 (+ Json 파싱)
   @PostMapping(value = "/test-input-report", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<BaseResponse<BasicReportResponse>> testInputReport(
+  public ResponseEntity<BaseResponse<PostReportResponse>> testInputReport(
       @RequestParam("data") String dataJson,
       @RequestPart(value = "image", required = false) MultipartFile image) throws JsonProcessingException {
 
     ObjectMapper mapper = new ObjectMapper();
     ReportRequest request = mapper.readValue(dataJson, ReportRequest.class);
 
-    BasicReportResponse response = reportService.inputReport(request, image);
+    PostReportResponse response = reportService.inputReport(request, image);
     return ResponseEntity.ok(BaseResponse.success("상세 리포트 결과 응답을 성공했습니다!", response));
   }
 

@@ -2,6 +2,7 @@ package com.sku.localism_be.domain.report.dto.response;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,5 +27,10 @@ public class DetailReportResponse {
   @Schema(description = "호흡 상태", example = "정상")
   private String breathingStatus;
 
+  @Schema(description = "위치", example = "서울시 강남구 논현로 123")
+  private String location;
+
+  @Schema(description = "사건 발생 시각", example = "2025-08-12T13:45:00")
+  private LocalDateTime created;
 
 }

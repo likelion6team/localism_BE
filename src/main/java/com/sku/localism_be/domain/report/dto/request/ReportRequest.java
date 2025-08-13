@@ -27,24 +27,13 @@ public class ReportRequest {
   @Schema(description = "사고 유형", example = "[\"교통사고\", \"화재\"]")
   private List<String> accidentType;
 
-  @NotEmpty(message = "주요 증상은 필수입니다.")
-  @Schema(description = "주요 증상", example = "[\"호흡 곤란\", \"출혈\"]")
+  @NotEmpty(message = "현재 증상은 필수입니다.")
+  @Schema(description = "현재 증상", example = "[\"호흡 곤란\", \"출혈\"]")
   private List<String> mainSymptoms;
 
   @NotBlank(message = "호흡 상태는 필수입니다.")
   @Schema(description = "호흡 상태", example = "정상")
   private String breathingStatus;
-
-  @NotBlank(message = "출혈 양상 정도는 필수입니다.")
-  @Schema(description = "출혈 양상 정도", example = "심함")
-  private String bleedingLevel;
-
-  @Schema(description = "기존 병력", example = "고혈압, 당뇨")
-  private String medicalHistory;
-
-  @NotNull(message = "구조 여부는 필수입니다.")
-  @Schema(description = "구조 여부", example = "false")
-  private Boolean isRescue;
 
   @NotBlank(message = "위치 정보는 필수입니다.")
   @Schema(description = "위치", example = "서울시 강남구 논현로 123")
@@ -58,8 +47,5 @@ public class ReportRequest {
   @Schema(description = "경도", example = "126.9780")
   private Double lng;
 
-  @NotBlank(message = "신고자는 필수입니다.")
-  @Schema(description = "신고자", example = "홍길동")
-  private String reporter;
 }
 

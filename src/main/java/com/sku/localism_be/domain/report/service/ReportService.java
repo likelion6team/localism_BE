@@ -1,12 +1,8 @@
 package com.sku.localism_be.domain.report.service;
 
 
-import com.sku.localism_be.domain.detailCard.dto.response.SmallReportListResponse;
-import com.sku.localism_be.domain.detailCard.dto.response.SmallReportResponse;
-import com.sku.localism_be.domain.detailCard.entity.DetailCard;
-import com.sku.localism_be.domain.detailCard.exception.DetailCardErrorCode;
 import com.sku.localism_be.domain.report.dto.request.ReportRequest;
-import com.sku.localism_be.domain.report.dto.response.BasicReportResponse;
+import com.sku.localism_be.domain.report.dto.response.PostReportResponse;
 import com.sku.localism_be.domain.report.dto.response.DetailReportResponse;
 import com.sku.localism_be.domain.report.dto.response.ReportListResponse;
 import com.sku.localism_be.domain.report.dto.response.ReportResponse;
@@ -42,7 +38,7 @@ public class ReportService {
 
   // Post 리포트
   @Transactional
-  public BasicReportResponse inputReport(ReportRequest request, MultipartFile img) {
+  public PostReportResponse inputReport(ReportRequest request, MultipartFile img) {
     String photoPath = null;
 
     MultipartFile image = img;
@@ -77,7 +73,6 @@ public class ReportService {
 
     // DB에 저장
     Report report = Report.builder()
-        .reporter(request.getReporter())
         .location(request.getLocation())
         .lat(request.getLat())
         .lng(request.getLng())
@@ -87,23 +82,13 @@ public class ReportService {
         .accidentType(String.join(",", request.getAccidentType()))
         .mainSymptoms(String.join(",", request.getMainSymptoms()))
         .breathingStatus(request.getBreathingStatus())
-        .bleedingLevel(request.getBleedingLevel())
-        .medicalHistory(request.getMedicalHistory())
         .photoPath(photoPath)
-        .isRescue(request.getIsRescue())
-        .caseId(UUID.randomUUID().toString())  // 케이스 ID는 임의 생성 (필요에 따라 조정)
+        .isRescue(false)
         .build();
 
 
     Report savedReport = reportRepository.save(report);
-
-
-      // id 얻어서 response에 넣고 return
-    return BasicReportResponse.builder()
-        .id(savedReport.getId())
-        .build();
-
-
+    return reportMapper.toPostReportResponse(savedReport);
   }
 
 

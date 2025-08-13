@@ -1,6 +1,7 @@
 package com.sku.localism_be.domain.report.mapper;
 
 import com.sku.localism_be.domain.report.dto.response.DetailReportResponse;
+import com.sku.localism_be.domain.report.dto.response.PostReportResponse;
 import com.sku.localism_be.domain.report.dto.response.ReportResponse;
 import com.sku.localism_be.domain.report.entity.Report;
 import org.springframework.stereotype.Component;
@@ -31,6 +32,17 @@ public class ReportMapper {
         .accidentType(report.sliceAccidentType())
         .majorSymptoms(report.sliceMainSymptoms())
         .breathingStatus(report.getBreathingStatus())
+        .build();
+  }
+
+  public PostReportResponse toPostReportResponse(Report report) {
+    if (report == null) {
+      return null;
+    }
+
+    return PostReportResponse.builder()
+        .id(report.getId())
+        .created(report.getCreated())
         .build();
   }
 
