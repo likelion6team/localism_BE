@@ -3,6 +3,8 @@ package com.sku.localism_be.domain.detailCard.repository;
 import com.sku.localism_be.domain.detailCard.entity.DetailCard;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface DetailCardRepository extends JpaRepository<DetailCard, Long>  {
 
@@ -18,5 +20,6 @@ public interface DetailCardRepository extends JpaRepository<DetailCard, Long>  {
 
   List<DetailCard> findTop5ByIdInOrderByYearDescMonthDescDayDescHourDescMinuteDesc(List<Long> ids);
 
+  Long countByYearAndMonthAndDay(Integer year, Integer month, Integer day);
 
 }

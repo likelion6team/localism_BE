@@ -5,6 +5,7 @@ import com.sku.localism_be.domain.detailCard.dto.request.InputReportRequest;
 import com.sku.localism_be.domain.detailCard.dto.response.InputReportResponse;
 import com.sku.localism_be.domain.detailCard.service.DetailCardService;
 import com.sku.localism_be.global.response.BaseResponse;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Hidden
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/DetailCards")

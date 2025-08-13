@@ -4,6 +4,7 @@ package com.sku.localism_be.domain.detailCard.controller;
 import com.sku.localism_be.domain.detailCard.dto.response.SmallReportListResponse;
 import com.sku.localism_be.domain.detailCard.service.CardService;
 import com.sku.localism_be.global.response.BaseResponse;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Hidden
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/Cards")

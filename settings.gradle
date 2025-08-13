@@ -1,1 +1,11 @@
-rootProject.name = 'localism_BE'
+// settings.gradle  (Groovy DSL)
+
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
+
+
+rootProject.name = "localism_BE"

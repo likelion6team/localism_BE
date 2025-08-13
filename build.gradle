@@ -48,6 +48,14 @@ dependencies {
     // ai
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
+    // voice
+    implementation 'com.alphacephei:vosk:0.3.45'
+
+    // MP3 디코더 & SPI
+    implementation 'com.googlecode.soundlibs:mp3spi:1.9.5-1'
+    implementation 'com.googlecode.soundlibs:tritonus-share:0.3.7-3'
+    implementation 'com.googlecode.soundlibs:jlayer:1.0.1-1'     // 안전하게 명시
+
 }
 
 tasks.named('test') {
