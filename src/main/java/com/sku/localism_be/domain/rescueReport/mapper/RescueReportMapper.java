@@ -38,6 +38,7 @@ public class RescueReportMapper {
         .created(report.getCreated())
         .consciousness(report.getConsciousnessStatus())
         .majorSymptoms(report.sliceMainSymptoms())
+        .eta(rescueReport.getEta())
         .build();
   }
 

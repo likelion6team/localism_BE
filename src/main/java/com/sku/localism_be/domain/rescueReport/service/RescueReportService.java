@@ -4,11 +4,15 @@ package com.sku.localism_be.domain.rescueReport.service;
 import com.sku.localism_be.domain.detailCard.dto.response.SmallReportListResponse;
 import com.sku.localism_be.domain.report.dto.request.ReportRequest;
 import com.sku.localism_be.domain.report.dto.response.PostReportResponse;
+import com.sku.localism_be.domain.report.dto.response.ReportListResponse;
+import com.sku.localism_be.domain.report.dto.response.ReportResponse;
 import com.sku.localism_be.domain.report.entity.Report;
 import com.sku.localism_be.domain.report.exception.ReportErrorCode;
 import com.sku.localism_be.domain.report.repository.ReportRepository;
 import com.sku.localism_be.domain.rescueReport.dto.request.RescueReportRequest;
 import com.sku.localism_be.domain.rescueReport.dto.response.PostRescueReportResponse;
+import com.sku.localism_be.domain.rescueReport.dto.response.RescueReportListResponse;
+import com.sku.localism_be.domain.rescueReport.dto.response.RescueReportResponse;
 import com.sku.localism_be.domain.rescueReport.entity.RescueReport;
 import com.sku.localism_be.domain.rescueReport.mapper.RescueReportMapper;
 import com.sku.localism_be.domain.rescueReport.repository.RescueReportRepository;
@@ -22,6 +26,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -84,6 +89,9 @@ public class RescueReportService {
 
     RescueReport savedReport = rescueReportRepository.save(rescueReport);
 
+    // 해당 신고는 구조 완료 처리. 
+    savedReport.getReport().setIsRescue(true);
+
 
     return PostRescueReportResponse.builder()
         .id(savedReport.getId())
@@ -93,6 +101,51 @@ public class RescueReportService {
         .build();
 
   }
+
+
+
+
+
+  // 전체 구조 리포트 다 가져오기
+  @Transactional
+  public RescueReportListResponse getEveryRescueReport(){
+    // 구조 리포트 다 가져옴.
+    List<RescueReport> everyReports = rescueReportRepository.findAll();
+
+    // 그걸 response로 만들고 List 안에 적재.
+    List<RescueReportResponse> responseList = everyReports.stream()
+        .map(rescueReportMapper::toRescueReportResponse)
+        .collect(Collectors.toList());
+
+    // 그걸 ReportListResponse의 필드에 저장하고 리턴.
+    return RescueReportListResponse.builder()
+        .rescueReports(responseList)
+        .totalCount(responseList.size())
+        .build();
+  }
+
+  // 대기 중인 구조 리포트 최신순으로 가져오기 (완료여부==false, 최신 생성 일자 순)
+  @Transactional
+  public RescueReportListResponse getWaitRescueReport(){
+    // 구조 리포트중에 구조여부가 false 인것들을 ETA 오름차순으로 가져옴.
+    List<RescueReport> waitedReports = rescueReportRepository.findByIsReceivedFalseOrderByEtaAsc();
+
+    // 그걸 response로 만들고 List 안에 적재.
+    List<RescueReportResponse> responseList = waitedReports.stream()
+        .map(rescueReportMapper::toRescueReportResponse)
+        .collect(Collectors.toList());
+
+    // 그걸 ReportListResponse의 필드에 저장하고 리턴.
+    return RescueReportListResponse.builder()
+        .rescueReports(responseList)
+        .totalCount(responseList.size())
+        .build();
+  }
+
+
+
+
+
 
 
 }

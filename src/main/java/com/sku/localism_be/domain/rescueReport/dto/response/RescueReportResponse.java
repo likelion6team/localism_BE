@@ -27,4 +27,7 @@ public class RescueReportResponse {
 
   @Schema(description = "주요 증상", example = "[\"가슴 통증\", \"호흡 곤란\"]")
   private List<String> majorSymptoms;
+
+  @Schema(description = "eta(예상 소요 시간)", example = "17")
+  private Integer eta;
 }

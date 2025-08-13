@@ -25,7 +25,7 @@ public class PostRescueReportResponse {
   @Schema(description = "병원명", example = "강남베드로병원")
   private String hospital;
 
-  @Schema(description = "time(예상 소요 시간)", example = "17")
+  @Schema(description = "eta(예상 소요 시간)", example = "17")
   private Integer eta;
 
 }
