@@ -23,9 +23,6 @@ public class RescueReportRequest {
   @Schema(description = "음성 ID", example = "1")
   private Long voiceId;
 
-  @NotBlank(message = "상세 사항은 필수입니다.")
-  @Schema(description = "상세 사항", example = "환자 도착 시 의식 없음, 심폐소생술 실시")
-  private String details;
 //
 //  @NotBlank(message = "키워드는 필수입니다.")
 //  @Schema(description = "키워드", example = "심폐소생술, 응급이송")
