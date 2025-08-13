@@ -2,6 +2,8 @@ package com.sku.localism_be.domain.rescueReport.entity;
 
 
 import com.sku.localism_be.domain.report.entity.Report;
+import com.sku.localism_be.domain.voice.entity.Voice;
+import com.sku.localism_be.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,14 +17,11 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Table(name = "rescue_report")
-public class RescueReport {
+public class RescueReport extends BaseTimeEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id; // 구조 ID
-
-  @Column(length = 1000)
-  private String details; // 구체 사항 (음성 요약본)
 
   @Column(length = 1000)
   private String hospital; // 병원명
@@ -41,9 +40,9 @@ public class RescueReport {
   @JoinColumn(name = "report_id", nullable = false)
   private Report report;  // 신고 고유 ID 대신 객체 참조
 
-//  @ManyToOne(fetch = FetchType.LAZY, optional = false)
-//  @JoinColumn(name = "voice_id", nullable = false)
-//  private Voice voice;  // 음성 고유 ID 대신 객체 참조
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "voice_id", nullable = false)
+  private Voice voice;  // 음성 고유 ID 대신 객체 참조
 
 
   // ====== 리스트 변환 메서드 ======

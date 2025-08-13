@@ -17,6 +17,9 @@ import com.sku.localism_be.domain.rescueReport.entity.RescueReport;
 import com.sku.localism_be.domain.rescueReport.exception.RescueReportErrorCode;
 import com.sku.localism_be.domain.rescueReport.mapper.RescueReportMapper;
 import com.sku.localism_be.domain.rescueReport.repository.RescueReportRepository;
+import com.sku.localism_be.domain.voice.entity.Voice;
+import com.sku.localism_be.domain.voice.exception.VoiceErrorCode;
+import com.sku.localism_be.domain.voice.repository.VoiceRecordRepository;
 import com.sku.localism_be.global.exception.CustomException;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -37,6 +40,7 @@ public class RescueReportService {
   private final RescueReportRepository rescueReportRepository;
   private final RescueReportMapper rescueReportMapper;
   private final ReportRepository reportRepository;
+  private final VoiceRecordRepository voiceRecordRepository;
 
   private final WebClient openAiWebClient;
   private final ObjectMapper objectMapper;
@@ -65,7 +69,9 @@ public class RescueReportService {
 
 
     // 음성 인식 로직
-    String rescuerDetails = request.getDetails();
+    Voice voice = voiceRecordRepository.findById(request.getVoiceId()).orElseThrow(() -> new CustomException(
+        VoiceErrorCode.VOICE_NOT_FOUND));
+    String rescuerDetails = voice.getText();
 
 
     // ai 추천 조치
@@ -137,13 +143,12 @@ public class RescueReportService {
 
     // DB에 저장
     RescueReport rescueReport = RescueReport.builder()
-        .details("음성 준비 중...")
         .hospital(hospital)
         .eta(time)
         .isReceived(false)
         .recommendedResources(String.join(",", recommendations))
         .report(report)
-        //.voice(voice)
+        .voice(voice)
         .build();
 
 

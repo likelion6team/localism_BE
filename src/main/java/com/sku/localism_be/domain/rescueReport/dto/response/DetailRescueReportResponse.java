@@ -34,9 +34,6 @@ public class DetailRescueReportResponse {
   @Schema(description = "상세 사항", example = "환자가 호흡 곤란을 호소하며 쓰러져 있음")
   private String details;
 
-//  @Schema(description = "키워드", example = "호흡곤란, 심정지 위험")
-//  private String keywords;
-
   @Schema(description = "AI 추천", example = "[\"심폐소생술 준비\", \"산소 공급\"]")
   private List<String> aiRecommendations;
 

@@ -22,8 +22,7 @@ public class RescueReportMapper {
         .created(report.getCreated())
         .location(report.getLocation())
         .eta(rescueReport.getEta())
-        .details(rescueReport.getDetails())
-        //.keywords(null)
+        .details(rescueReport.getVoice().getSummary())
         .aiRecommendations(rescueReport.sliceRecommendedResources())
         .majorSymptoms(report.sliceMainSymptoms())
         .build();
