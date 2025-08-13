@@ -32,6 +32,9 @@ public class ReportMapper {
         .accidentType(report.sliceAccidentType())
         .majorSymptoms(report.sliceMainSymptoms())
         .breathingStatus(report.getBreathingStatus())
+        .isPhotoPath(report.getPhotoPath() != null)
+        .location(report.getLocation())
+        .created(report.getCreated())
         .build();
   }
 

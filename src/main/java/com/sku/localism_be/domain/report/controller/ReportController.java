@@ -11,7 +11,13 @@ import com.sku.localism_be.domain.report.service.ReportService;
 import com.sku.localism_be.global.response.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -80,5 +86,21 @@ public class ReportController {
     DetailReportResponse response = reportService.getReport(id);
     return ResponseEntity.ok(BaseResponse.success("상세 신고 리포트 조회 응답을 성공했습니다!", response));
   }
+
+  // 이미지 다운로드/보기 API
+  @Operation(summary = "리포트 이미지 조회 API", description = "리포트 ID로 등록된 이미지를 조회합니다.")
+  @GetMapping("/{id}/image")
+  public ResponseEntity<Resource> getReportImage(@PathVariable Long id) throws MalformedURLException {
+    Resource resource = reportService.getReportImage(id);
+
+    return ResponseEntity.ok()
+        .contentType(MediaType.IMAGE_JPEG) // 필요시 MIME 타입 자동 감지 추가 가능
+        .header(HttpHeaders.CONTENT_DISPOSITION,
+            "inline; filename=\"" + resource.getFilename() + "\"")
+        .body(resource);
+  }
+
+
+
 
 }

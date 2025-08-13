@@ -2,6 +2,7 @@ package com.sku.localism_be.domain.report.dto.response;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Column;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -26,6 +27,9 @@ public class DetailReportResponse {
 
   @Schema(description = "호흡 상태", example = "정상")
   private String breathingStatus;
+
+  @Schema(description = "사진 유무", example = "true")
+  private Boolean isPhotoPath;
 
   @Schema(description = "위치", example = "서울시 강남구 논현로 123")
   private String location;

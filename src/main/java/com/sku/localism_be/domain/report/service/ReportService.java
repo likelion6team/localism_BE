@@ -12,6 +12,7 @@ import com.sku.localism_be.domain.report.mapper.ReportMapper;
 import com.sku.localism_be.domain.report.repository.ReportRepository;
 import com.sku.localism_be.global.exception.CustomException;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,6 +22,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -137,6 +140,27 @@ public class ReportService {
         ReportErrorCode.REPORT_NOT_FOUND));
 
     return reportMapper.toDetailReportResponse(report);
+  }
+
+
+  // 사진 파일 리턴하기
+  @Transactional(readOnly = true)
+  public Resource getReportImage(Long id) throws MalformedURLException {
+    Report report = reportRepository.findById(id)
+        .orElseThrow(() -> new CustomException(ReportErrorCode.REPORT_NOT_FOUND));
+
+    String path = report.getPhotoPath();
+    if (path == null) {
+      throw new CustomException(ReportErrorCode.IMAGE_NOT_FOUND);
+    }
+
+    Path filePath = Paths.get(path).toAbsolutePath();
+
+    if (!Files.exists(filePath)) {
+      throw new CustomException(ReportErrorCode.IMAGE_NOT_FOUND);
+    }
+
+    return new UrlResource(filePath.toUri());
   }
 
 }
