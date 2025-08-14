@@ -102,8 +102,6 @@ public class RescueReportService {
 
     try {
       response = client.send(requestP, HttpResponse.BodyHandlers.ofString());
-      System.out.println("Status Code: " + response.statusCode());
-      System.out.println("Response Body: " + response.body());
 
 
       // JSON 파싱
@@ -130,10 +128,8 @@ public class RescueReportService {
         rawName = rawName.replaceAll("\\s+", "");
 
         hospital = rawName;  // 공백 제거된 깔끔한 병원 이름 저장
-        System.out.println("Hospital Name: " + hospital);
       } else {
         hospital = null;
-        System.out.println("주변 병원이 없습니다.");
       }
     } catch (IOException e) {
       // 네트워크 문제
@@ -147,15 +143,6 @@ public class RescueReportService {
     }
 
 
-
-
-
-    // 자동차 경로로 몇 분 걸리는지 경로 찾기 티맵 api 호출
-    // 이게 response 출력한거:
-    // Response Body: { "searchPoiInfo" : {  "totalCount" : 1055,  "count" : 1,  "page" : 1,  "pois" : {   "poi" : [    {     "id" : "8974399",         "name" : "을지로정형외과의원 주차장",     "telNo" : "0269255375",     "frontLat" : "37.56670428",     "frontLon" : "126.98432604",     "noorLat" : "37.56670428",     "noorLon" : "126.98432604",          "upperAddrName" : "서울",          "middleAddrName" : "중구",          "lowerAddrName" : "을지로2가",          "detailAddrName" : "",     "mlClass" : "1",     "firstNo" : "9",     "secondNo" : "10",          "roadName" : "을지로",     "buildingNo1" : "55",     "buildingNo2" : "",     "rpFlag" : "16",     "parkFlag" : "0",     "merchantFlag" : "",     "radius" : "0.05",     "dataKind" : "",     "stId" : "",     "highHhSale" : "0",     "minOilYn" : "N",     "oilBaseSdt" : "",     "hhPrice" : "0",     "ggPrice" : "0",     "llPrice" : "0",     "highHhPrice" : "0",     "highGgPrice" : "0",     "pkey" : "897439902","evChargers":{"evCharger":[]}    }   ]  } }}
-
-
-    // 여기서 경로 찾기 api !!!!!
     try {
       // 출발지
       double startLat = lat;   // 예: 37.56656541
@@ -213,81 +200,9 @@ public class RescueReportService {
 
 
 
-
-
-
-
     // 음성 인식 로직
     Voice voice = voiceRecordRepository.findById(request.getVoiceId()).orElseThrow(() -> new CustomException(
         VoiceErrorCode.VOICE_NOT_FOUND));
-    String rescuerDetails = voice.getText();
-
-
-    // ai 추천 조치
-
-    // ai 프롬프트
-    Map<String, Object> patientData = new LinkedHashMap<>();
-    patientData.put("환자 의식 상태", report.getConsciousnessStatus());
-    patientData.put("호흡 상태", report.getBreathingStatus());
-    patientData.put("사고 유형", report.getAccidentType());
-    patientData.put("주요 증상", report.getMainSymptoms());
-    patientData.put("구조대원 현장 보고", rescuerDetails);
-
-    String patientJson;
-    try {
-      patientJson = objectMapper.writeValueAsString(patientData);
-    } catch (JsonProcessingException e) {
-      throw new RuntimeException("환자 데이터 JSON 변환 실패", e);
-    }
-
-
-    // 5. AI 프롬프트 구성
-    String prompt = """
-당신은 응급실 전문의입니다.
-아래 환자는 현재 구급차로 병원에 이송 중이며, 이송 시간은 약 %d분입니다.
-환자 데이터를 종합 분석하여, 병원 도착 직후 시행해야 할 전문적인 응급 처치 3가지를 제시하세요.
-
-조건:
-- 각 처치는 15자 이내
-- '진행' 또는 '시행'으로 끝날 것
-- 반드시 JSON 배열만 반환 (백틱, 코드 블록 없이)
-- 예: ["기관삽관 시행", "심전도 모니터링 진행", "정맥로 확보 시행"]
-
-환자 데이터:
-%s
-""".formatted(time, patientJson);
-
-    // 6. OpenAI API 호출
-    String openAiResponse = openAiWebClient.post()
-        .uri("/v1/chat/completions")
-        .header("Authorization", "Bearer " + openAiApiKey)
-        .header("Content-Type", "application/json")
-        .bodyValue(Map.of(
-            "model", "gpt-4o-mini",
-            "temperature", 0.4,
-            "messages", List.of(
-                Map.of("role", "system", "content", "너는 응급실 전문의이다."),
-                Map.of("role", "user", "content", prompt)
-            )
-        ))
-        .retrieve()
-        .bodyToMono(String.class)
-        .block();
-
-    // 7. 응답 파싱
-    List<String> recommendations;
-    try {
-      JsonNode root = objectMapper.readTree(openAiResponse);
-      String content = root.path("choices").get(0).path("message").path("content").asText();
-
-      // ```json ... ``` 제거 (만약 포함돼 있으면)
-      content = content.replaceAll("(?s)^```json\\s*", "").replaceAll("(?s)```\\s*$", "").trim();
-
-      log.info("OpenAI 응답: {}", content);
-      recommendations = objectMapper.readValue(content, new TypeReference<>() {});
-    } catch (Exception e) {
-      throw new RuntimeException("OpenAI 응답 파싱 실패", e);
-    }
 
 
     // DB에 저장
@@ -295,7 +210,6 @@ public class RescueReportService {
         .hospital(hospital)
         .eta(time)
         .isReceived(false)
-        .recommendedResources(String.join(",", recommendations))
         .report(report)
         .voice(voice)
         .build();

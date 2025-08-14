@@ -33,9 +33,6 @@ public class RescueReport extends BaseTimeEntity {
   @Column
   private Boolean isReceived; // 수신 여부
 
-  @Column(length = 1000)
-  private String recommendedResources; // 추천 자원 (comma-separated)
-
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "report_id", nullable = false)
   private Report report;  // 신고 고유 ID 대신 객체 참조
@@ -45,8 +42,4 @@ public class RescueReport extends BaseTimeEntity {
   private Voice voice;  // 음성 고유 ID 대신 객체 참조
 
 
-  // ====== 리스트 변환 메서드 ======
-  public List<String> sliceRecommendedResources() {
-    return recommendedResources != null ? Arrays.asList(recommendedResources.split(",")) : List.of();
-  }
 }

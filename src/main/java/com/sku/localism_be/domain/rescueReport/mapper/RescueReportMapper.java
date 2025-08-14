@@ -27,7 +27,6 @@ public class RescueReportMapper {
         .location(report.getLocation())
         .eta(rescueReport.getEta())
         .details(rescueReport.getVoice().getSummary())
-        .aiRecommendations(rescueReport.sliceRecommendedResources())
         .majorSymptoms(report.sliceMainSymptoms())
             .systolics(List.of(
                     vs.getSystolic10(),
