@@ -32,12 +32,9 @@ public class TmapService {
     return findNearest(reportReq.getLat(), reportReq.getLng());
   }
 
-  /** 위경도 직접 조회: 병원만 검색 (없으면 키워드·반경 단계적 확장) */
+  /** 위경도 직접 조회: 병원만 검색 (없으면 반경 확장) */
   public TmapNearestResponse findNearest(double lat, double lon) {
-    // 1차: 2km
     Map<String, Object> poi = searchNearestHospital(lat, lon, /*radiusMeters*/1500);
-
-    // 2차: 없으면 5km로 재시도
     if (poi == null) {
       poi = searchNearestHospital(lat, lon, /*radiusMeters*/5000);
     }
@@ -62,7 +59,7 @@ public class TmapService {
 
   /** 병원 계열 키워드 우선순위로 검색 → 가장 가까운 1개 반환 */
   private Map<String, Object> searchNearestHospital(double lat, double lon, int radiusMeters) {
-    // 우선순위: 일반 "병원" → "의원" → "종합병원" → "대학병원" → "의료원" → "의료센터"
+    // 응급실 제외, 병원 계열만
     List<String> keywords = List.of("병원", "의원", "종합병원", "대학병원", "의료원", "의료센터");
     for (String kw : keywords) {
       Map<String, Object> poi = searchNearestByKeyword(kw, lat, lon, radiusMeters);
@@ -76,15 +73,19 @@ public class TmapService {
   private Map<String, Object> searchNearestByKeyword(String keyword, double lat, double lon, int radiusMeters) {
     int radiusKm = Math.max(1, (int) Math.ceil(radiusMeters / 1000.0)); // 1500m -> 2km
 
+    // ✅ 키워드 위생 처리: 한글/영문/숫자만 남기고 나머지(공백/특수문자 포함) 제거
+    String safeKeyword = sanitizeKeyword(keyword);
+    log.debug("[Tmap] keyword='{}' -> safeKeyword='{}'", keyword, safeKeyword);
+
     String poisUri = UriComponentsBuilder.fromPath("/tmap/pois")
         .queryParam("version", 1)
         .queryParam("format", "json")
-        .queryParam("searchKeyword", keyword)   // ✅ 핵심: 키워드
-        .queryParam("searchType", "all")        // 이름/주소/업종 전체
-        .queryParam("searchtypCd", "R")         // 거리순
+        .queryParam("searchKeyword", safeKeyword) // 안전 키워드 사용
+        .queryParam("searchType", "all")          // 이름/주소/업종 전체
+        .queryParam("searchtypCd", "R")           // 거리순
         .queryParam("centerLon", lon)
         .queryParam("centerLat", lat)
-        .queryParam("radius", radiusKm)         // km (정수)
+        .queryParam("radius", radiusKm)           // km (정수)
         .queryParam("page", 1)
         .queryParam("count", 20)
         .toUriString();
@@ -158,7 +159,6 @@ public class TmapService {
                 // 안전 빈결과 JSON
                 return "{\"searchPoiInfo\":{\"pois\":{\"poi\":[]}}}";
               }
-              // 바디 앞부분 샘플
               log.debug("[Tmap GET] body.sample={}", body.substring(0, Math.min(300, body.length())));
               return body;
             }))
@@ -188,6 +188,14 @@ public class TmapService {
   }
 
   // ---------- utils ----------
+
+  /** 한글/영문/숫자만 허용. 공백/특수문자 제거. 빈값이면 기본 '병원' 반환 */
+  private static String sanitizeKeyword(String s) {
+    if (s == null) return "병원";
+    String out = s.replaceAll("\\s+", "");          // 공백 제거
+    out = out.replaceAll("[^\\p{L}\\p{N}]", "");     // 특수문자 제거 (문자/숫자만 허용)
+    return out.isEmpty() ? "병원" : out;
+  }
 
   private Map<String, Object> jsonToMap(String raw) {
     try {
