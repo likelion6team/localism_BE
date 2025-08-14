@@ -39,4 +39,12 @@ public class DetailRescueReportResponse {
 
   @Schema(description = "주요 증상", example = "[\"가슴 통증\", \"호흡 곤란\"]")
   private List<String> majorSymptoms;
+
+  @Schema(description = "수축기 혈압", example = "[126, 105, 127, 130, 109, 90]")
+  private List<Integer> systolics;
+
+  @Schema(description = "심박수", example = "[68, 95, 74, 77, 76, 88]")
+  private List<Integer> pulses;
+  
+  
 }
