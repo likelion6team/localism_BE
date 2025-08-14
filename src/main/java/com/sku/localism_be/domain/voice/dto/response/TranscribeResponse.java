@@ -1,4 +1,4 @@
-// src/main/java/com/sku/localism_be/domain/voice/dto/response/TranscribeResponse.java
+
 package com.sku.localism_be.domain.voice.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;

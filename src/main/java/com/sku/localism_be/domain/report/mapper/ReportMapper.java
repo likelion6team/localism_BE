@@ -36,6 +36,11 @@ public class ReportMapper {
         .isPhotoPath(report.getPhotoPath() != null)
         .location(report.getLocation())
         .created(report.getCreated())
+        .systolic(report.getVitalSign().getSystolic0())
+        .diastolic(report.getVitalSign().getDiastolic0())
+        .pulse(report.getVitalSign().getPulse0())
+        .respiration(report.getVitalSign().getRespiration())
+        .spo2(report.getVitalSign().getSpo2())
         .build();
   }
 

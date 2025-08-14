@@ -39,4 +39,20 @@ public class DetailReportResponse {
   @Schema(description = "사건 발생 시각", example = "2025-08-12T13:45:00")
   private LocalDateTime created;
 
+
+  @Schema(description = "수축기 혈압", example = "90")
+  private Integer systolic;
+
+  @Schema(description = "이완기 혈압", example = "60")
+  private Integer diastolic;
+
+  @Schema(description = "맥박", example = "124")
+  private Integer pulse;
+
+  @Schema(description = "호흡수", example = "30")
+  private Integer respiration;
+
+  @Schema(description = "산소포화도", example = "88")
+  private Integer spo2;
+
 }

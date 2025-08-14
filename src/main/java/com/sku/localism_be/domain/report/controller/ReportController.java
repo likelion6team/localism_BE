@@ -11,7 +11,9 @@ import com.sku.localism_be.domain.report.service.ReportService;
 import com.sku.localism_be.global.response.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.net.MalformedURLException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
@@ -35,23 +37,23 @@ public class ReportController {
 
   private final ReportService reportService;
 
-/*
+
   // (실제 배포 연동용 ) 리포트를 작성 받은 request를 이용해서 계산, DB에 저장하고, response로 리턴.
-  @Operation(summary = "신고 리포트 작성 API", description = "신고자가 작성하는 신고 리포트 작성 API")
+  @Operation(summary = "신고 리포트 작성 API(연동 후 시도용)", description = "신고자가 작성하는 신고 리포트 작성 API")
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<BaseResponse<BasicReportResponse>> inputReport(
+  public ResponseEntity<BaseResponse<PostReportResponse>> inputReport(
       @Parameter(description = "신고 리포트 데이터", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
       @RequestPart("data") @Valid ReportRequest request,
       @RequestPart(value = "image", required = false) MultipartFile image) {
-    BasicReportResponse response = reportService.inputReport(request, image);
+    PostReportResponse response = reportService.inputReport(request, image);
     return ResponseEntity.ok(BaseResponse.success("상세 리포트 결과 응답을 성공했습니다!", response));
   }
-  */
+
 
   // API 테스트용 (+ Json 파싱)
-  @Operation(summary = "신고 리포트 작성 API", description = "신고자가 작성하는 신고 리포트 작성 API")
+  @Operation(summary = "신고 리포트 작성 API(연동 전 테스트용)", description = "신고자가 작성하는 신고 리포트 작성 API")
   @PostMapping(value = "/test-input-report", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<BaseResponse<PostReportResponse>> testInputReport(
+  public ResponseEntity<BaseResponse<PostReportResponse>> testInputReportTest(
       @Parameter(
           description = "신고 리포트 JSON 데이터",
           example = "{\"consciousnessStatus\":\"정상\",\"accidentType\":[\"교통사고\",\"화재\"],\"mainSymptoms\":[\"호흡 곤란\",\"출혈\"],\"breathingStatus\":\"정상\",\"location\":\"서울시 강남구 논현로 123\",\"lat\":37.5665,\"lng\":126.9780}"

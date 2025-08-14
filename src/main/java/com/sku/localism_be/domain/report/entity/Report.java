@@ -2,6 +2,8 @@ package com.sku.localism_be.domain.report.entity;
 
 
 
+import com.sku.localism_be.domain.vitalSign.entity.VitalSign;
+import com.sku.localism_be.domain.voice.entity.Voice;
 import com.sku.localism_be.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -54,6 +56,10 @@ public class Report extends BaseTimeEntity {
 
   @Column(nullable = false)
   private Boolean isRescue = false; // 구조 여부 (기본 false)
+
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "vitalSign_id", nullable = false)
+  private VitalSign vitalSign;  // 활력 징후 고유 ID 대신 객체 참조
 
   // ====== 리스트 변환 메서드 ======
   public List<String> sliceAccidentType() {
