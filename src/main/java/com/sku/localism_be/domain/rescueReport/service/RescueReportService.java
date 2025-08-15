@@ -63,6 +63,7 @@ public class RescueReportService {
 
   @Transactional
   public PostRescueReportResponse inputRescueReport(RescueReportRequest request) {
+    log.info("[RescueReport] reportID:{} 구조 리포트 작성 시작.", request.getReportId());
     // 사고 리포트가 구조 되었는지 확인
     boolean reported = rescueReportRepository.existsByReportId(request.getReportId());
     if (reported) {
@@ -219,7 +220,7 @@ public class RescueReportService {
 
     // 해당 신고는 구조 완료 처리. 
     savedReport.getReport().setIsRescue(true);
-
+    log.info("[RescueReport] reportID:{} 구조 리포트 작성 완료. ID:{}", request.getReportId(), savedReport.getId());
 
     return PostRescueReportResponse.builder()
         .id(savedReport.getId())
@@ -237,6 +238,7 @@ public class RescueReportService {
   // 전체 구조 리포트 다 가져오기
   @Transactional
   public RescueReportListResponse getEveryRescueReport(){
+    log.info("[RescueReport] (확인용) 전체 구조 리포트 조회 시작.");
     // 구조 리포트 다 가져옴.
     List<RescueReport> everyReports = rescueReportRepository.findAll();
 
@@ -244,6 +246,8 @@ public class RescueReportService {
     List<RescueReportResponse> responseList = everyReports.stream()
         .map(rescueReportMapper::toRescueReportResponse)
         .collect(Collectors.toList());
+
+    log.info("[RescueReport] (확인용) 총 {}개의 전체 구조 리포트 조회 완료.", responseList.size());
 
     // 그걸 ReportListResponse의 필드에 저장하고 리턴.
     return RescueReportListResponse.builder()
@@ -255,6 +259,7 @@ public class RescueReportService {
   // 대기 중인 구조 리포트 최신순으로 가져오기 (완료여부==false, 최신 생성 일자 순)
   @Transactional
   public RescueReportListResponse getWaitRescueReport(){
+    log.info("[RescueReport] 대기 중인 구조 리포트 조회 시작.");
     // 구조 리포트중에 구조여부가 false 인것들을 ETA 오름차순으로 가져옴.
     List<RescueReport> waitedReports = rescueReportRepository.findByIsReceivedFalseOrderByEtaAsc();
 
@@ -262,6 +267,8 @@ public class RescueReportService {
     List<RescueReportResponse> responseList = waitedReports.stream()
         .map(rescueReportMapper::toRescueReportResponse)
         .collect(Collectors.toList());
+
+    log.info("[RescueReport] 총 {}개의 대기 중인 구조 리포트 조회 시작.", responseList.size());
 
     // 그걸 ReportListResponse의 필드에 저장하고 리턴.
     return RescueReportListResponse.builder()
@@ -275,19 +282,22 @@ public class RescueReportService {
   // 단일 구조 리포트 가져오기
   @Transactional
   public DetailRescueReportResponse getRescueReport(Long id){
+    log.info("[RescueReport] id:{} 구조 리포트 상세 조회 시작.", id);
     // id와 일치하는 구조 리포트 가져옴.
     RescueReport report = rescueReportRepository.findById(id).orElseThrow(() -> new CustomException(
         RescueReportErrorCode.RESCUE_REPORT_NOT_FOUND));
 
+    log.info("[RescueReport] id:{} 구조 리포트 상세 조회 완료.", id);
     return rescueReportMapper.toDetailRescueReportResponse(report);
   }
 
 
 
 
-  // 사고 리포트 완료 처리하는 로직.(isReceived를 true로 해서 저장)
+  // 구조 리포트 완료 처리하는 로직.(isReceived를 true로 해서 저장)
   @Transactional
   public void completeRescueReport(Long rescueReportId) {
+    log.info("[RescueReport] id:{} 구조 리포트 완료 처리 시작.", rescueReportId);
     // 1. 구조 리포트 조회
     RescueReport rescueReport = rescueReportRepository.findById(rescueReportId)
         .orElseThrow(() -> new CustomException(RescueReportErrorCode.RESCUE_REPORT_NOT_FOUND));
@@ -296,6 +306,8 @@ public class RescueReportService {
     rescueReport.setIsReceived(true);
 
     // 3. @Transactional 덕분에 JPA가 자동으로 DB 반영
+
+    log.info("[RescueReport] id:{} 구조 리포트 완료 처리 완료.", rescueReportId);
   }
 
 }
