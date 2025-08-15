@@ -47,6 +47,7 @@ public class ReportService {
   // Post 리포트
   @Transactional
   public PostReportResponse inputReport(ReportRequest request, MultipartFile img) {
+    log.info("[Report] 신고 리포트 작성 시작.");
     String photoPath = null;
 
     MultipartFile image = img;
@@ -72,6 +73,7 @@ public class ReportService {
         Files.copy(image.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
         photoPath = filePath.toString();
+        log.info("[Report] 신고 리포트 이미지 경로 가져오기 성공. photoPath:{}", photoPath);
 
       } catch (IOException e) {
         log.error("이미지 저장 실패", e);
@@ -133,6 +135,8 @@ public class ReportService {
 
 
     Report savedReport = reportRepository.save(report);
+
+    log.info("[Report] 신고 리포트 작성 성공. ID:{}", savedReport.getLocation());
     return reportMapper.toPostReportResponse(savedReport);
   }
 
@@ -140,6 +144,7 @@ public class ReportService {
   // 전체 신고 리포트 다 가져오기
   @Transactional
   public ReportListResponse getEveryReport(){
+    log.info("[Report] (확인용) 전체 신고 리포트 조회 시작.");
     // 신고 리포트 다 가져옴.
     List<Report> everyReports = reportRepository.findAll();
 
@@ -148,6 +153,8 @@ public class ReportService {
         .map(reportMapper::toReportResponse)
         .collect(Collectors.toList());
 
+    log.info("[Report] (확인용) 총 {}개의 전체 신고 리포트 조회 완료.", responseList.size());
+    
     // 그걸 ReportListResponse의 필드에 저장하고 리턴.
     return ReportListResponse.builder()
         .reports(responseList)
@@ -158,6 +165,8 @@ public class ReportService {
   // 대기 중인 신고 리포트 최신순으로 가져오기 (구조여부==false, 최신 생성 일자 순)
   @Transactional
   public ReportListResponse getWaitReport(){
+    log.info("[Report] 대기 중인 신고 리포트 조회 시작.");
+    
     // 신고 리포트중에 구조여부가 false 인것들을 생성일자 오름차순으로 가져옴.
     List<Report> waitedReports = reportRepository.findByIsRescueFalseOrderByCreatedDesc();
 
@@ -165,6 +174,8 @@ public class ReportService {
     List<ReportResponse> responseList = waitedReports.stream()
         .map(reportMapper::toReportResponse)
         .collect(Collectors.toList());
+
+    log.info("[Report] 총 {}개의 대기 중인 신고 리포트 조회 시작.", responseList.size());
 
     // 그걸 ReportListResponse의 필드에 저장하고 리턴.
     return ReportListResponse.builder()
@@ -177,10 +188,12 @@ public class ReportService {
   // 단일 신고 리포트 가져오기
   @Transactional
   public DetailReportResponse getReport(Long id){
+    log.info("[Report] id:{} 신고 리포트 상세 조회 시작.", id);
     // id와 일치하는 신고 리포트 가져옴.
     Report report = reportRepository.findById(id).orElseThrow(() -> new CustomException(
         ReportErrorCode.REPORT_NOT_FOUND));
 
+    log.info("[Report] id:{} 신고 리포트 상세 조회 완료.", id);
     return reportMapper.toDetailReportResponse(report);
   }
 
@@ -188,6 +201,8 @@ public class ReportService {
   // 사진 파일 리턴하기
   @Transactional(readOnly = true)
   public Resource getReportImage(Long id) throws MalformedURLException {
+    log.info("[Report] id:{} 신고 리포트 이미지 파일 불러오기 시작.", id);
+
     Report report = reportRepository.findById(id)
         .orElseThrow(() -> new CustomException(ReportErrorCode.REPORT_NOT_FOUND));
 
@@ -201,7 +216,8 @@ public class ReportService {
     if (!Files.exists(filePath)) {
       throw new CustomException(ReportErrorCode.IMAGE_NOT_FOUND);
     }
-
+    
+    log.info("[Report] id:{} 신고 리포트 이미지 파일 불러오기 성공.", id);
     return new UrlResource(filePath.toUri());
   }
 
