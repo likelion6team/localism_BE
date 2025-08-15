@@ -37,7 +37,7 @@ public class RescueReportController {
   }
 
   // (확인용) 작성된 전체 구조 리포트 리스트 조회
-  @Operation(summary="(확인용) 전체 신고 리포트 리스트 조회 API", description ="작성된 전체 신고 리포트 리스트 조회를 위한 API")
+  @Operation(summary="(확인용) 전체 구조 리포트 리스트 조회 API", description ="작성된 전체 구조 리포트 리스트 조회를 위한 API")
   @GetMapping
   public ResponseEntity<BaseResponse<RescueReportListResponse>> getEveryRescueReport() {
     RescueReportListResponse response = rescueReportService.getEveryRescueReport();
