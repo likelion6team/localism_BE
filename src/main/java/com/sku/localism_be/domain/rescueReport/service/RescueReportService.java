@@ -22,6 +22,7 @@ import com.sku.localism_be.domain.voice.exception.VoiceErrorCode;
 import com.sku.localism_be.domain.voice.repository.VoiceRecordRepository;
 import com.sku.localism_be.global.exception.CustomException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,13 +83,14 @@ public class RescueReportService {
     int time = 17;
 
 
-    double lat = 37.56656541;  // 출발지 위도
-    double lon = 126.98452047; // 출발지 경도
-    String category = URLEncoder.encode("병원", StandardCharsets.UTF_8);
+    double lat = report.getLat();  // 출발지 위도
+    double lon = report.getLng(); // 출발지 경도
+    String category = URLEncoder.encode("응급실", StandardCharsets.UTF_8);
 
+    // 근처 응급실 200개 뽑기
     String url = String.format(
-        "https://apis.openapi.sk.com/tmap/pois/search/around?version=1&centerLon=%f&centerLat=%f&categories=%s&page=1&count=1&radius=2",
-        lon, lat, category
+            "https://apis.openapi.sk.com/tmap/pois/search/around?version=1&centerLon=%f&centerLat=%f&categories=%s&page=1&count=200&radius=0&multiPoint=Y&sort=distance",
+            lon, lat, category
     );
 
     HttpClient client = HttpClient.newHttpClient();
@@ -100,6 +102,13 @@ public class RescueReportService {
 
 
     HttpResponse<String> response;
+    // 응급실 병원 리스트
+    List<JsonNode> erHospitals = new ArrayList<>();
+    String rawName = "";
+
+    // 장소, 병원명
+    JsonNode poi = null;
+    String nnn = null;
 
     try {
       response = client.send(requestP, HttpResponse.BodyHandlers.ofString());
@@ -114,22 +123,34 @@ public class RescueReportService {
           .path("pois")
           .path("poi");
       if (poisNode.isArray() && poisNode.size() > 0) {
-        String rawName = poisNode.get(0).path("name").asText();
+        for (int i = 0; i < poisNode.size(); i++) {
+          poi = poisNode.get(i);
+          nnn = poi.path("name").asText();
+          // 모든 공백 제거
+          nnn = nnn.replaceAll("\\s+", "");
 
-        // 불필요한 단어 제거
-        String[] removeSuffix = {"주차장", "정문", "후문", "후문입구", "건물"};
-        for (String suffix : removeSuffix) {
-          if (rawName.endsWith(suffix)) {
-            rawName = rawName.substring(0, rawName.length() - suffix.length());
-            break;
+          // "응급" 포함된 병원만 필터링
+          if (nnn.contains("응급")) {
+            erHospitals.add(poi);
           }
+
         }
 
-        // 모든 공백 제거
-        rawName = rawName.replaceAll("\\s+", "");
+        if (!erHospitals.isEmpty()) {
+          JsonNode nearestER = erHospitals.get(0);
+          rawName = nearestER.path("name").asText();
+          double endLat = nearestER.path("frontLat").asDouble();
+          double endLon = nearestER.path("frontLon").asDouble();
 
-        hospital = rawName;  // 공백 제거된 깔끔한 병원 이름 저장
+          System.out.println("가장 가까운 응급실: " + rawName + " (" + endLat + ", " + endLon + ")");
+
+          // 👉 이 endLat, endLon을 경로 API에 넣으면 됨
+        } else {
+          System.out.println("근처에 응급실이 없습니다.");
+        }
+        hospital = rawName;
       } else {
+        System.out.println("검색된 병원이 없습니다.");
         hospital = null;
       }
     } catch (IOException e) {
@@ -231,6 +252,165 @@ public class RescueReportService {
 
   }
 
+  // 지도 테스트
+  @Transactional
+  public void mapTest(Long id){
+    // 사고 리포트가 구조 되었는지 확인
+    boolean reported = rescueReportRepository.existsByReportId(id);
+    if (reported) {
+      throw new CustomException(RescueReportErrorCode.RESCUE_REPORT_ALREADY_EXISTS);
+    }
+
+
+    // 일치하는 사고 리포트 가져오기
+    Report report = reportRepository.findById(id).orElseThrow(() -> new CustomException(
+            ReportErrorCode.REPORT_NOT_FOUND));
+
+
+
+    // 병원 예상 시간 로직
+    String hospital = "강남베드로병원";
+    int time = 17;
+
+
+    double lat = report.getLat();  // 출발지 위도
+    double lon = report.getLng(); // 출발지 경도
+    String category = URLEncoder.encode("응급실", StandardCharsets.UTF_8);
+
+    // 근처 병원 200개 뽑기
+    String url = String.format(
+            "https://apis.openapi.sk.com/tmap/pois/search/around?version=1&centerLon=%f&centerLat=%f&categories=%s&page=1&count=200&radius=0&multiPoint=Y&sort=distance",
+            lon, lat, category
+    );
+
+    HttpClient client = HttpClient.newHttpClient();
+    HttpRequest requestP = HttpRequest.newBuilder()
+            .uri(URI.create(url))
+            .header("Accept", "application/json")
+            .header("appKey", appKey)
+            .build();
+
+
+    HttpResponse<String> response;
+    // 응급실 병원 리스트
+    List<JsonNode> erHospitals = new ArrayList<>();
+    String rawName = "";
+
+    // 장소, 병원명
+    JsonNode poi = null;
+    String nnn = null;
+
+    try {
+      response = client.send(requestP, HttpResponse.BodyHandlers.ofString());
+
+
+      // JSON 파싱
+      ObjectMapper mapper = new ObjectMapper();
+      JsonNode rootNode = mapper.readTree(response.body());
+
+      // 병원 이름 추출
+      JsonNode poisNode = rootNode.path("searchPoiInfo")
+              .path("pois")
+              .path("poi");
+      if (poisNode.isArray() && poisNode.size() > 0) {
+        for (int i = 0; i < poisNode.size(); i++) {
+          poi = poisNode.get(i);
+          nnn = poi.path("name").asText();
+          // 모든 공백 제거
+          nnn = nnn.replaceAll("\\s+", "");
+
+          // "응급" 포함된 병원만 필터링
+          if (nnn.contains("응급")) {
+            erHospitals.add(poi);
+          }
+
+        }
+
+        if (!erHospitals.isEmpty()) {
+          JsonNode nearestER = erHospitals.get(0);
+          rawName = nearestER.path("name").asText();
+          double endLat = nearestER.path("frontLat").asDouble();
+          double endLon = nearestER.path("frontLon").asDouble();
+
+          System.out.println("가장 가까운 응급실: " + rawName + " (" + endLat + ", " + endLon + ")");
+
+          // 👉 이 endLat, endLon을 경로 API에 넣으면 됨
+        } else {
+          System.out.println("근처에 응급실이 없습니다.");
+        }
+        hospital = rawName;
+      } else {
+        System.out.println("검색된 병원이 없습니다.");
+        hospital = null;
+      }
+    } catch (IOException e) {
+      // 네트워크 문제
+      log.error("TMAP API 호출 중 네트워크 오류 발생", e);
+      throw new CustomException(RescueReportErrorCode.RESCUE_REPORT_API_ERROR);
+    } catch (InterruptedException e) {
+      // 스레드 인터럽트 문제
+      log.error("TMAP API 호출이 중단됨", e);
+      Thread.currentThread().interrupt(); // 인터럽트 상태 복원
+      throw new CustomException(RescueReportErrorCode.RESCUE_REPORT_API_ERROR);
+    }
+
+
+    try {
+      // 출발지
+      double startLat = lat;   // 예: 37.56656541
+      double startLon = lon;   // 예: 126.98452047
+
+      // 도착지 (POI response에서 frontLat, frontLon 파싱)
+      JsonNode poiNode = objectMapper.readTree(response.body())
+              .path("searchPoiInfo")
+              .path("pois")
+              .path("poi")
+              .get(0);
+
+      double endLat = poiNode.path("frontLat").asDouble();
+      double endLon = poiNode.path("frontLon").asDouble();
+
+      // TMap 경로 API POST 요청 JSON
+      String routeRequestBody = objectMapper.writeValueAsString(Map.of(
+              "startX", startLon,   // 경도
+              "startY", startLat,   // 위도
+              "endX", endLon,
+              "endY", endLat,
+              "reqCoordType", "WGS84GEO",   // 좌표 타입
+              "resCoordType", "WGS84GEO",
+              "searchOption", "0",          // 최적 경로
+              "trafficInfo", "Y"            // 실시간 교통정보
+      ));
+
+      HttpRequest routeRequest = HttpRequest.newBuilder()
+              .uri(URI.create("https://apis.openapi.sk.com/tmap/routes?version=1"))
+              .header("Accept", "application/json")
+              .header("Content-Type", "application/json")
+              .header("appKey", appKey)
+              .POST(HttpRequest.BodyPublishers.ofString(routeRequestBody))
+              .build();
+
+      HttpResponse<String> routeResponse = client.send(routeRequest, HttpResponse.BodyHandlers.ofString());
+
+      // 응답 JSON 파싱해서 예상 소요 시간 추출
+      JsonNode routeRoot = objectMapper.readTree(routeResponse.body());
+      JsonNode features = routeRoot.path("features");
+      int etaMinutes = 0;
+
+      if (features.isArray() && features.size() > 0) {
+        // properties -> totalTime (단위: 분)
+        etaMinutes = features.get(0).path("properties").path("totalTime").asInt();
+      }
+
+      log.info("출발지 -> 도착지 예상 소요 시간(초): {}", etaMinutes);
+      time = etaMinutes;  // AI 프롬프트에 반영
+    } catch (IOException | InterruptedException e) {
+      log.error("TMAP 경로 API 호출 오류", e);
+      throw new CustomException(RescueReportErrorCode.RESCUE_REPORT_API_ERROR);
+    }
+
+    System.out.println("==> [결과] 병원명: "+ hospital +", ETA: " +time);
+  }
 
 
 
