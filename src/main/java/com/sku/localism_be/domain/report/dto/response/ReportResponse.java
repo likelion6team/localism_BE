@@ -18,6 +18,9 @@ public class ReportResponse {
   @Schema(description = "신고 리포트 ID", example = "1")
   private Long id;
 
+  @Schema(description = "사고 유형", example = "[\"교통사고\", \"화재\"]")
+  private List<String> accidentType;
+
   @Schema(description = "주요 증상", example = "[\"가슴 통증\", \"호흡 곤란\"]")
   private List<String> majorSymptoms;
 

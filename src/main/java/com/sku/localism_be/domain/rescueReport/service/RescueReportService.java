@@ -255,12 +255,6 @@ public class RescueReportService {
   // 지도 테스트
   @Transactional
   public void mapTest(Long id){
-    // 사고 리포트가 구조 되었는지 확인
-    boolean reported = rescueReportRepository.existsByReportId(id);
-    if (reported) {
-      throw new CustomException(RescueReportErrorCode.RESCUE_REPORT_ALREADY_EXISTS);
-    }
-
 
     // 일치하는 사고 리포트 가져오기
     Report report = reportRepository.findById(id).orElseThrow(() -> new CustomException(
@@ -325,6 +319,15 @@ public class RescueReportService {
           }
 
         }
+
+        System.out.println("========= 응급 포함 병원 리스트 ==========================");
+        for (int i = 0; i < erHospitals.size(); i++) {
+          JsonNode er = erHospitals.get(i);
+          String name = er.path("name").asText();
+
+          System.out.printf(" - [%d] %s \n", i, name);
+        }
+        System.out.println("================================================");
 
         if (!erHospitals.isEmpty()) {
           JsonNode nearestER = erHospitals.get(0);
