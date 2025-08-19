@@ -28,6 +28,12 @@ public class RescueReportController {
 
   private final RescueReportService rescueReportService;
 
+  @Operation(summary = "(확인용) 지도 테스트 API", description = "리포트의 좌표 기준으로 근처 응급실 찾기 백엔드 테스트용 API (콘솔창에 나옴.)")
+  @PostMapping("/mapTest")
+  public void mapTest(Long id) {
+    rescueReportService.mapTest(id);
+  }
+
   @Operation(summary = "구조 리포트 작성 API", description = "구급대원이 작성하는 구조 리포트 작성 API")
   @PostMapping
   public ResponseEntity<BaseResponse<PostRescueReportResponse>> inputRescueReport(

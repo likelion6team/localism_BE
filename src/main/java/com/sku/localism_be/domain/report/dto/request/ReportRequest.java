@@ -36,7 +36,7 @@ public class ReportRequest {
   private String breathingStatus;
 
   @NotBlank(message = "위치 정보는 필수입니다.")
-  @Schema(description = "위치", example = "서울시 강남구 논현로 123")
+  @Schema(description = "위치", example = "서울특별시 중구 세종대로 110")
   private String location;
 
   @NotNull(message = "위도는 필수입니다.")

@@ -56,7 +56,7 @@ public class ReportController {
   public ResponseEntity<BaseResponse<PostReportResponse>> testInputReportTest(
       @Parameter(
           description = "신고 리포트 JSON 데이터",
-          example = "{\"consciousnessStatus\":\"정상\",\"accidentType\":[\"교통사고\",\"화재\"],\"mainSymptoms\":[\"호흡 곤란\",\"출혈\"],\"breathingStatus\":\"정상\",\"location\":\"서울시 강남구 논현로 123\",\"lat\":37.5665,\"lng\":126.9780}"
+          example = "{\"consciousnessStatus\":\"정상\",\"accidentType\":[\"교통사고\",\"화재\"],\"mainSymptoms\":[\"호흡 곤란\",\"출혈\"],\"breathingStatus\":\"정상\",\"location\":\"서울특별시 중구 세종대로 110\",\"lat\":37.5665,\"lng\":126.9780}"
       )
       @RequestParam("data") String dataJson,
       @RequestPart(value = "image", required = false) MultipartFile image) throws JsonProcessingException {
